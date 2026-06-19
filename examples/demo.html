@@ -207,7 +207,7 @@
 
       .scale-options {
         display: grid;
-        grid-template-columns: repeat(4, minmax(0, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(4rem, 1fr));
         gap: 0.35rem;
       }
 
@@ -390,6 +390,9 @@
             <fieldset>
               <legend>Image scale</legend>
               <div class="scale-options" id="scale-options">
+                <label><input type="radio" name="image-scale" value="4x" />4x</label>
+                <label><input type="radio" name="image-scale" value="3x" />3x</label>
+                <label><input type="radio" name="image-scale" value="2x" />2x</label>
                 <label><input type="radio" name="image-scale" value="1x" />1x</label>
                 <label><input type="radio" name="image-scale" value="0.75x" />0.75x</label>
                 <label><input type="radio" name="image-scale" value="0.5x" />0.5x</label>
@@ -399,11 +402,11 @@
             <div class="number-grid">
               <label>
                 Columns
-                <input id="columns-input" type="number" min="8" max="1200" value="76" inputmode="numeric" />
+                <input id="columns-input" type="number" min="8" max="4800" value="76" inputmode="numeric" />
               </label>
               <label>
                 Rows
-                <input id="rows-input" type="number" min="4" max="900" value="50" inputmode="numeric" />
+                <input id="rows-input" type="number" min="4" max="3600" value="50" inputmode="numeric" />
               </label>
             </div>
           </form>
@@ -443,6 +446,8 @@
       const sourcePreview = document.querySelector("#source-preview");
       const conversionStatus = document.querySelector("#conversion-status");
       const htmlOutputCode = document.querySelector("#html-output-code");
+      const MAX_COLUMNS = 4800;
+      const MAX_ROWS = 3600;
       let livePreview = document.querySelector("#live-preview");
       let activeObjectUrl = "";
       let customGrid = false;
@@ -499,20 +504,20 @@
       function syncGridFromScale() {
         const scale = Number.parseFloat(selectedScale()) || 0.5;
         const { height, width } = previewSize();
-        columnsInput.value = Math.min(1200, Math.max(8, Math.round(width * scale)));
-        rowsInput.value = Math.min(900, Math.max(4, Math.round(height * scale)));
+        columnsInput.value = Math.min(MAX_COLUMNS, Math.max(8, Math.round(width * scale)));
+        rowsInput.value = Math.min(MAX_ROWS, Math.max(4, Math.round(height * scale)));
       }
 
       function syncRowsFromColumns() {
-        const columns = clampNumber(columnsInput.value, 8, 1200, 360);
+        const columns = clampNumber(columnsInput.value, 8, MAX_COLUMNS, 360);
         columnsInput.value = columns;
-        rowsInput.value = Math.min(900, Math.max(4, Math.round(columns * imageHeightOverWidth())));
+        rowsInput.value = Math.min(MAX_ROWS, Math.max(4, Math.round(columns * imageHeightOverWidth())));
       }
 
       function syncColumnsFromRows() {
-        const rows = clampNumber(rowsInput.value, 4, 900, 240);
+        const rows = clampNumber(rowsInput.value, 4, MAX_ROWS, 240);
         rowsInput.value = rows;
-        columnsInput.value = Math.min(1200, Math.max(8, Math.round(rows / imageHeightOverWidth())));
+        columnsInput.value = Math.min(MAX_COLUMNS, Math.max(8, Math.round(rows / imageHeightOverWidth())));
       }
 
       function useCustomGridFrom(field) {
@@ -649,7 +654,11 @@ ${escapeHtml(inlineStyleFor(fallback))}
 
         try {
           await waitForImage(sourcePreview);
-          const ascii = await imageToAscii(sourcePreview, options);
+          const ascii = await imageToAscii(sourcePreview, {
+            ...options,
+            maxColumns: MAX_COLUMNS,
+            maxRows: MAX_ROWS
+          });
 
           if (id !== renderId) {
             return;

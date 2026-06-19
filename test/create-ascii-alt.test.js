@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { ALTO_RESOLUTION_PRESETS, createAsciiAlt, paletteFromAlt } from "../src/index.js";
+import { ALTO_RESOLUTION_PRESETS, createAsciiAlt, imageToAscii, paletteFromAlt } from "../src/index.js";
 
 test("createAsciiAlt returns the requested grid size", () => {
   const ascii = createAsciiAlt("A red bicycle leaning against a brick wall", {
@@ -52,6 +52,40 @@ test("explicit columns and rows override resolution presets", () => {
 test("resolution preset values are exported", () => {
   assert.equal(ALTO_RESOLUTION_PRESETS.medium, 1);
   assert.ok(ALTO_RESOLUTION_PRESETS.high > ALTO_RESOLUTION_PRESETS.low);
+});
+
+test("imageToAscii supports source-relative scales up to 4x", async () => {
+  const ascii = await imageToAscii(
+    {
+      naturalHeight: 3,
+      naturalWidth: 5
+    },
+    {
+      document: {
+        createElement() {
+          return {
+            getContext() {
+              return {
+                drawImage() {},
+                getImageData(_x, _y, width, height) {
+                  return {
+                    data: new Uint8ClampedArray(width * height * 4).fill(255)
+                  };
+                }
+              };
+            }
+          };
+        }
+      },
+      maxColumns: 100,
+      maxRows: 100,
+      resolution: "4x"
+    }
+  );
+  const lines = ascii.split("\n");
+
+  assert.equal(lines.length, 12);
+  assert.ok(lines.every((line) => line.length === 20));
 });
 
 test("paletteFromAlt returns CSS color strings", () => {

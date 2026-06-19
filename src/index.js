@@ -1,6 +1,7 @@
 const DEFAULT_SELECTOR = "img[alt]:not([data-alto-ignore])";
 const DEFAULT_CHARSET = " .,:;irsXA253hMHGS#9B&@";
 const WORD_JOINER = " ";
+const MAX_RESOLUTION_SCALE = 4;
 
 export const ALTO_RESOLUTION_PRESETS = {
   tiny: 0.55,
@@ -29,22 +30,22 @@ function resolutionScale(resolution) {
   }
 
   if (typeof resolution === "number") {
-    return Number.isFinite(resolution) ? clamp(resolution, 0.25, 3) : 1;
+    return Number.isFinite(resolution) ? clamp(resolution, 0.25, MAX_RESOLUTION_SCALE) : 1;
   }
 
   const value = String(resolution).trim().toLowerCase();
 
   if (value in ALTO_RESOLUTION_PRESETS) {
-    return clamp(ALTO_RESOLUTION_PRESETS[value], 0.05, 1);
+    return clamp(ALTO_RESOLUTION_PRESETS[value], 0.05, MAX_RESOLUTION_SCALE);
   }
 
   if (value.endsWith("%")) {
     const percent = Number.parseFloat(value.slice(0, -1));
-    return Number.isFinite(percent) ? clamp(percent / 100, 0.25, 3) : 1;
+    return Number.isFinite(percent) ? clamp(percent / 100, 0.25, MAX_RESOLUTION_SCALE) : 1;
   }
 
   const numeric = Number.parseFloat(value);
-  return Number.isFinite(numeric) ? clamp(numeric, 0.25, 3) : 1;
+  return Number.isFinite(numeric) ? clamp(numeric, 0.25, MAX_RESOLUTION_SCALE) : 1;
 }
 
 function sourceScale(resolution) {
@@ -53,7 +54,7 @@ function sourceScale(resolution) {
   }
 
   if (typeof resolution === "number") {
-    return Number.isFinite(resolution) ? clamp(resolution, 0.05, 1) : null;
+    return Number.isFinite(resolution) ? clamp(resolution, 0.05, MAX_RESOLUTION_SCALE) : null;
   }
 
   const value = String(resolution).trim().toLowerCase();
@@ -64,12 +65,12 @@ function sourceScale(resolution) {
 
   if (value.endsWith("x")) {
     const multiplier = Number.parseFloat(value.slice(0, -1));
-    return Number.isFinite(multiplier) ? clamp(multiplier, 0.05, 1) : null;
+    return Number.isFinite(multiplier) ? clamp(multiplier, 0.05, MAX_RESOLUTION_SCALE) : null;
   }
 
   if (value.endsWith("%")) {
     const percent = Number.parseFloat(value.slice(0, -1));
-    return Number.isFinite(percent) ? clamp(percent / 100, 0.05, 1) : null;
+    return Number.isFinite(percent) ? clamp(percent / 100, 0.05, MAX_RESOLUTION_SCALE) : null;
   }
 
   return null;

@@ -46,7 +46,7 @@ The demo includes:
 - A normal loaded image.
 - Broken image fallbacks.
 - A real image uploader that converts selected image pixels to ASCII.
-- Source-relative scale toggles: `1x`, `0.75x`, `0.5x`, and `0.25x`.
+- Source-relative scale toggles from `0.25x` up to `4x`.
 - Exact columns and rows number inputs that preserve the source image aspect ratio.
 
 The sample photo is a NASA Apollo 11 image of Buzz Aldrin sourced from Wikimedia Commons/NASA.
@@ -137,12 +137,15 @@ const ascii = await imageToAscii(imageElement, {
 
 Source-relative scales sample the original image dimensions:
 
+- `4x`: four times the source width and height.
+- `3x`: three times the source width and height.
+- `2x`: twice the source width and height.
 - `1x`: full source width and height.
 - `0.75x`: 75 percent of source width and height.
 - `0.5x`: half source width and height.
 - `0.25x`: quarter source width and height.
 
-Rows are derived from the actual source image aspect ratio. For example, a `720x480` image at `0.5x` becomes a `360x240` ASCII grid.
+Rows are derived from the actual source image aspect ratio. For example, a `720x480` image at `0.5x` becomes a `360x240` ASCII grid. Source-relative scales are capped at `4x` before `maxColumns` and `maxRows` are applied.
 
 You can also use exact columns and rows:
 
@@ -313,7 +316,7 @@ Options:
 
 - `columns`: exact output columns.
 - `rows`: exact output rows.
-- `resolution`: source-relative scale such as `1x`, `0.75x`, `0.5x`, or `0.25x`.
+- `resolution`: source-relative scale such as `4x`, `2x`, `1x`, `0.75x`, `0.5x`, or `0.25x`.
 - `charset`: characters ordered from light to dark.
 - `crossOrigin`: value applied to URL-created images.
 - `document`: custom DOM document.
