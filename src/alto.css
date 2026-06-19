@@ -10,6 +10,7 @@
   box-sizing: border-box;
   display: inline-grid;
   place-items: center;
+  position: relative;
   min-inline-size: 8rem;
   min-block-size: 5rem;
   overflow: hidden;
@@ -44,9 +45,12 @@
   );
   letter-spacing: 0;
   inline-size: max-content;
+  position: absolute;
+  inset-block-start: 50%;
+  inset-inline-start: 50%;
   max-inline-size: none;
   max-block-size: none;
-  transform: scale(var(--alto-fit-x, var(--alto-x-scale, 1)), var(--alto-fit-y, 1));
+  transform: translate(-50%, -50%) scale(var(--alto-fit-x, var(--alto-x-scale, 1)), var(--alto-fit-y, 1));
   transform-origin: center;
   white-space: pre;
   text-shadow:
