@@ -21,7 +21,7 @@ const contentTypes = {
 
 function resolveRequestPath(url) {
   const parsed = new URL(url, `http://${host}:${port}`);
-  const rawPath = parsed.pathname === "/" ? "/examples/demo.html" : parsed.pathname;
+  const rawPath = parsed.pathname === "/" ? "/index.html" : parsed.pathname;
   const safePath = normalize(decodeURIComponent(rawPath)).replace(/^(\.\.[/\\])+/, "");
   const filePath = join(root, safePath);
 
@@ -49,5 +49,6 @@ const server = createServer((request, response) => {
 });
 
 server.listen(port, host, () => {
+  console.log(`Alto ASCII site: http://${host}:${port}/`);
   console.log(`Alto ASCII demo: http://${host}:${port}/examples/demo.html`);
 });

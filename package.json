@@ -4,6 +4,14 @@
   "description": "Styled ASCII fallbacks for broken images using their alt text.",
   "type": "module",
   "types": "./src/index.d.ts",
+  "homepage": "https://mootbing.github.io/Alto/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Mootbing/Alto.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Mootbing/Alto/issues"
+  },
   "license": "MIT",
   "author": "",
   "sideEffects": [
@@ -21,7 +29,9 @@
     "./style.css": "./src/alto.css"
   },
   "files": [
+    "docs",
     "examples",
+    "index.html",
     "src",
     "README.md",
     "LICENSE"

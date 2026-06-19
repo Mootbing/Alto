@@ -29,6 +29,18 @@ const stopAlto = installAlto();
 
 ## Demo
 
+Hosted demo:
+
+```text
+https://mootbing.github.io/Alto/examples/demo.html
+```
+
+Usage docs:
+
+```text
+https://mootbing.github.io/Alto/docs/how-to-use.html
+```
+
 Run the local demo:
 
 ```sh

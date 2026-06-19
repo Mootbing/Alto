@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Alto ASCII</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --page: #101114;
+        --panel: #181b20;
+        --line: #2b3139;
+        --text: #f5f7fb;
+        --muted: #a8b0bd;
+        --accent: #72e0c8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background: var(--page);
+        color: var(--text);
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+
+      main {
+        display: grid;
+        gap: 1.5rem;
+        width: min(64rem, calc(100% - 2rem));
+        margin: 0 auto;
+        padding: 2rem 0 3rem;
+      }
+
+      header {
+        display: grid;
+        gap: 1rem;
+        padding-bottom: 1.25rem;
+        border-bottom: 1px solid var(--line);
+      }
+
+      h1,
+      p {
+        margin: 0;
+      }
+
+      h1 {
+        font-size: clamp(2rem, 5vw, 4rem);
+        line-height: 1;
+      }
+
+      p {
+        max-width: 48rem;
+        color: var(--muted);
+        line-height: 1.55;
+      }
+
+      code {
+        color: var(--accent);
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      }
+
+      .top-row,
+      .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.6rem;
+      }
+
+      .install-command,
+      .button {
+        display: inline-flex;
+        align-items: center;
+        min-height: 2.4rem;
+        padding: 0 0.85rem;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        color: var(--text);
+        text-decoration: none;
+      }
+
+      .install-command {
+        border-color: color-mix(in srgb, var(--accent), transparent 35%);
+        background: color-mix(in srgb, var(--accent), #0c0d10 88%);
+        color: #ecfffb;
+      }
+
+      .install-command code {
+        color: inherit;
+      }
+
+      .panel {
+        display: grid;
+        gap: 0.9rem;
+        padding: 1rem;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--panel);
+      }
+
+      .panel strong {
+        font-size: 1rem;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <div class="top-row">
+          <a class="install-command" href="https://www.npmjs.com/package/alto-ascii"><code>npm install alto-ascii</code></a>
+        </div>
+        <h1>Alto ASCII</h1>
+        <p>Styled ASCII fallbacks for broken images, plus a browser image-to-ASCII converter for making visual alt-style placeholders.</p>
+        <div class="actions">
+          <a class="button" href="./examples/demo.html">Open Demo</a>
+          <a class="button" href="./docs/how-to-use.html">How To Use Alto</a>
+          <a class="button" href="https://github.com/Mootbing/Alto">GitHub</a>
+        </div>
+      </header>
+
+      <section class="panel">
+        <strong>What it does</strong>
+        <p>Alto watches regular <code>&lt;img alt="..."&gt;</code> elements. If an image fails, it replaces the broken image box with a styled ASCII fallback that keeps the human-readable alt text available to assistive technology.</p>
+      </section>
+    </main>
+  </body>
+</html>

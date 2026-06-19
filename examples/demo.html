@@ -80,6 +80,38 @@
         white-space: nowrap;
       }
 
+      .header-actions {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        gap: 0.5rem;
+      }
+
+      .install-command,
+      .nav-link {
+        display: inline-flex;
+        align-items: center;
+        min-height: 2rem;
+        padding: 0 0.65rem;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        color: var(--text);
+        font-size: 0.86rem;
+        text-decoration: none;
+        white-space: nowrap;
+      }
+
+      .install-command {
+        border-color: color-mix(in srgb, var(--accent), transparent 35%);
+        background: color-mix(in srgb, var(--accent), #0c0d10 88%);
+        color: #ecfffb;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      }
+
+      .install-command code {
+        color: inherit;
+      }
+
       .gallery {
         display: grid;
         grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -310,6 +342,10 @@
           grid-template-columns: 1fr;
         }
 
+        .header-actions {
+          justify-content: flex-start;
+        }
+
         .status {
           width: fit-content;
         }
@@ -323,7 +359,11 @@
           <h1>Alto ASCII</h1>
           <p>Broken image fallbacks that turn <code>alt</code> text into styled low-res ASCII blocks.</p>
         </div>
-        <span class="status" id="replacement-count">0 fallbacks rendered</span>
+        <div class="header-actions">
+          <a class="install-command" href="https://www.npmjs.com/package/alto-ascii"><code>npm install alto-ascii</code></a>
+          <a class="nav-link" href="../docs/how-to-use.html">Docs</a>
+          <span class="status" id="replacement-count">0 fallbacks rendered</span>
+        </div>
       </header>
 
       <section aria-labelledby="gallery-title">
