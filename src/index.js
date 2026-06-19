@@ -581,8 +581,8 @@ export async function imageToAscii(source, options = {}) {
       const blue = pixels[offset + 2];
       const alpha = pixels[offset + 3] / 255;
       const luminance = (0.2126 * red + 0.7152 * green + 0.0722 * blue) / 255;
-      const value = clamp(luminance * alpha + (1 - alpha), 0, 1);
-      const charIndex = Math.round((1 - value) * (charset.length - 1));
+      const value = clamp(luminance * alpha, 0, 1);
+      const charIndex = Math.round(value * (charset.length - 1));
       line += charset[charIndex];
     }
 

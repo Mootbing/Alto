@@ -376,18 +376,18 @@
               <div class="scale-options" id="scale-options">
                 <label><input type="radio" name="image-scale" value="1x" />1x</label>
                 <label><input type="radio" name="image-scale" value="0.75x" />0.75x</label>
-                <label><input type="radio" name="image-scale" value="0.5x" checked />0.5x</label>
-                <label><input type="radio" name="image-scale" value="0.25x" />0.25x</label>
+                <label><input type="radio" name="image-scale" value="0.5x" />0.5x</label>
+                <label><input type="radio" name="image-scale" value="0.25x" checked />0.25x</label>
               </div>
             </fieldset>
             <div class="number-grid">
               <label>
                 Columns
-                <input id="columns-input" type="number" min="8" max="1200" value="360" inputmode="numeric" />
+                <input id="columns-input" type="number" min="8" max="1200" value="76" inputmode="numeric" />
               </label>
               <label>
                 Rows
-                <input id="rows-input" type="number" min="4" max="900" value="240" inputmode="numeric" />
+                <input id="rows-input" type="number" min="4" max="900" value="50" inputmode="numeric" />
               </label>
             </div>
           </form>
@@ -447,8 +447,21 @@
         };
       }
 
+      function previewSize() {
+        const rect = sourcePreview.getBoundingClientRect();
+
+        if (rect.width > 0 && rect.height > 0) {
+          return {
+            height: rect.height,
+            width: rect.width
+          };
+        }
+
+        return imageSize();
+      }
+
       function imageHeightOverWidth() {
-        const { height, width } = imageSize();
+        const { height, width } = previewSize();
         return height / Math.max(1, width);
       }
 
@@ -463,7 +476,7 @@
 
       function syncGridFromScale() {
         const scale = Number.parseFloat(selectedScale()) || 0.5;
-        const { height, width } = imageSize();
+        const { height, width } = previewSize();
         columnsInput.value = Math.min(1200, Math.max(8, Math.round(width * scale)));
         rowsInput.value = Math.min(900, Math.max(4, Math.round(height * scale)));
       }
@@ -496,8 +509,11 @@
 
       function currentAsciiOptions() {
         if (!customGrid && selectedScale()) {
+          syncGridFromScale();
+
           return {
-            resolution: selectedScale()
+            columns: columnsInput.value,
+            rows: rowsInput.value
           };
         }
 
