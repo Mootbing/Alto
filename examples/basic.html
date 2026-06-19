@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Alto ASCII demo</title>
+    <link rel="stylesheet" href="../src/alto.css" />
+    <style>
+      body {
+        max-width: 58rem;
+        margin: 3rem auto;
+        padding: 0 1rem;
+        background: #101114;
+        color: #f8fafc;
+        font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+      }
+
+      main {
+        display: grid;
+        gap: 1.5rem;
+      }
+
+      img,
+      .demo-image {
+        width: min(100%, 34rem);
+        height: 18rem;
+        object-fit: cover;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Alto ASCII demo</h1>
+      <img
+        class="demo-image"
+        src="./missing-photo.jpg"
+        alt="A yellow kayak crossing a blue alpine lake at sunrise"
+      />
+      <img
+        class="demo-image"
+        src="./missing-poster.jpg"
+        alt="Concert poster with bold diagonal lettering"
+        data-alto-ascii="::::://////%%%%&&&&&#10;:::: POSTER %%&&&&&&#10;///// LIVE ////%%%%#10;&&&& DIAGONAL &&&&"
+      />
+    </main>
+    <script type="module">
+      import { installAlto } from "../src/index.js";
+
+      installAlto();
+    </script>
+  </body>
+</html>

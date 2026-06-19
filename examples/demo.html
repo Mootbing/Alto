@@ -1,0 +1,614 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Alto ASCII Demo</title>
+    <link rel="stylesheet" href="../src/alto.css" />
+    <style>
+      :root {
+        color-scheme: dark;
+        --page: #101114;
+        --panel: #181b20;
+        --line: #2b3139;
+        --text: #f5f7fb;
+        --muted: #a8b0bd;
+        --accent: #72e0c8;
+        --warn: #ffcf70;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background: var(--page);
+        color: var(--text);
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+
+      main {
+        width: min(72rem, calc(100% - 2rem));
+        margin: 0 auto;
+        padding: 2rem 0 3rem;
+      }
+
+      header {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 1rem;
+        align-items: end;
+        padding-block: 0 1.25rem;
+        border-bottom: 1px solid var(--line);
+      }
+
+      h1,
+      h2,
+      p {
+        margin: 0;
+      }
+
+      h1 {
+        font-size: clamp(1.7rem, 3vw, 3rem);
+        line-height: 1;
+      }
+
+      h2 {
+        font-size: 1rem;
+      }
+
+      p {
+        color: var(--muted);
+        line-height: 1.55;
+      }
+
+      code {
+        color: var(--accent);
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      }
+
+      .status {
+        display: inline-flex;
+        align-items: center;
+        min-height: 2rem;
+        padding: 0 0.65rem;
+        border: 1px solid color-mix(in srgb, var(--accent), transparent 45%);
+        border-radius: 999px;
+        color: var(--accent);
+        font-size: 0.86rem;
+        white-space: nowrap;
+      }
+
+      .gallery {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 1rem;
+        margin-top: 1.25rem;
+      }
+
+      figure {
+        margin: 0;
+      }
+
+      .frame {
+        display: grid;
+        gap: 0.75rem;
+        padding: 0.8rem;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--panel);
+      }
+
+      .sample-image,
+      .alto-fallback {
+        inline-size: 100%;
+        block-size: 14rem;
+      }
+
+      .sample-image {
+        display: block;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        object-fit: cover;
+        background: #0c0d10;
+      }
+
+      figcaption {
+        display: grid;
+        gap: 0.25rem;
+        min-height: 4.4rem;
+      }
+
+      figcaption strong {
+        font-size: 0.95rem;
+      }
+
+      figcaption span {
+        color: var(--muted);
+        font-size: 0.9rem;
+        line-height: 1.4;
+      }
+
+      .playground {
+        display: grid;
+        grid-template-columns: minmax(18rem, 0.65fr) minmax(22rem, 1fr);
+        gap: 1rem;
+        margin-top: 1rem;
+      }
+
+      .controls,
+      .preview,
+      .source-panel {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--panel);
+      }
+
+      .controls {
+        display: grid;
+        gap: 1rem;
+        align-content: start;
+        padding: 1rem;
+      }
+
+      label {
+        display: grid;
+        gap: 0.45rem;
+        color: var(--muted);
+        font-size: 0.9rem;
+      }
+
+      fieldset {
+        min-inline-size: 0;
+        margin: 0;
+        padding: 0;
+        border: 0;
+      }
+
+      legend {
+        margin-bottom: 0.45rem;
+        color: var(--muted);
+        font-size: 0.9rem;
+      }
+
+      input,
+      textarea {
+        width: 100%;
+        border: 1px solid var(--line);
+        border-radius: 6px;
+        background: #0c0d10;
+        color: var(--text);
+        font: inherit;
+      }
+
+      textarea {
+        min-height: 7rem;
+        resize: vertical;
+        padding: 0.75rem;
+        line-height: 1.45;
+      }
+
+      input[type="file"] {
+        padding: 0.65rem;
+      }
+
+      input[type="number"] {
+        min-height: 2.35rem;
+        padding: 0 0.65rem;
+      }
+
+      .number-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.8rem;
+      }
+
+      .scale-options {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 0.35rem;
+      }
+
+      .scale-options label {
+        position: relative;
+        display: grid;
+        min-height: 2.35rem;
+        place-items: center;
+        border: 1px solid var(--line);
+        border-radius: 6px;
+        background: #0c0d10;
+        color: var(--text);
+        cursor: pointer;
+      }
+
+      .scale-options input {
+        position: absolute;
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      .scale-options label:has(input:checked) {
+        border-color: color-mix(in srgb, var(--accent), transparent 25%);
+        background: color-mix(in srgb, var(--accent), #0c0d10 86%);
+        color: #ecfffb;
+      }
+
+      .conversion-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 1rem;
+      }
+
+      .source-panel,
+      .preview {
+        display: grid;
+        gap: 0.65rem;
+        align-content: start;
+        min-height: 20rem;
+        padding: 1rem;
+      }
+
+      .source-panel img {
+        display: block;
+        width: 100%;
+        height: auto;
+        aspect-ratio: var(--demo-aspect, 3 / 2);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        object-fit: contain;
+        background: #0c0d10;
+      }
+
+      .panel-label {
+        color: var(--muted);
+        font-size: 0.86rem;
+      }
+
+      #live-preview.alto-fallback {
+        --alto-padding: 0;
+        inline-size: 100%;
+        block-size: auto;
+        min-block-size: 0;
+        aspect-ratio: var(--demo-aspect, 3 / 2);
+      }
+
+      .section-title {
+        display: flex;
+        justify-content: space-between;
+        gap: 1rem;
+        align-items: center;
+        margin-top: 2rem;
+      }
+
+      .hint {
+        color: var(--warn);
+        font-size: 0.9rem;
+      }
+
+      @media (max-width: 880px) {
+        header,
+        .gallery,
+        .playground,
+        .conversion-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .status {
+          width: fit-content;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <div>
+          <h1>Alto ASCII</h1>
+          <p>Broken image fallbacks that turn <code>alt</code> text into styled low-res ASCII blocks.</p>
+        </div>
+        <span class="status" id="replacement-count">0 fallbacks rendered</span>
+      </header>
+
+      <section aria-labelledby="gallery-title">
+        <div class="section-title">
+          <h2 id="gallery-title">Image States</h2>
+          <span class="hint">One real image, two intentional failures.</span>
+        </div>
+        <div class="gallery">
+          <figure class="frame">
+            <img
+              class="sample-image"
+              src="./assets/apollo-aldrin.jpg"
+              alt="Buzz Aldrin standing on the lunar surface during Apollo 11"
+            />
+            <figcaption>
+              <strong>Loaded image</strong>
+              <span>A real raster photo stays untouched when it loads normally.</span>
+            </figcaption>
+          </figure>
+
+          <figure class="frame">
+            <img
+              class="sample-image"
+              src="./missing-kayak-photo.jpg"
+              alt="A yellow kayak crossing a blue alpine lake at sunrise"
+              data-alto-resolution="high"
+            />
+            <figcaption>
+              <strong>Generated fallback</strong>
+              <span>When loading fails, Alto generates a deterministic ASCII block from the alt text.</span>
+            </figcaption>
+          </figure>
+
+          <figure class="frame">
+            <img
+              class="sample-image"
+              src="./missing-poster-photo.jpg"
+              alt="Concert poster with bold diagonal lettering"
+              data-alto-ascii="::::://////%%%%&&&&&#10;:::: POSTER %%&&&&&&#10;///// LIVE ////%%%%#10;&&&& DIAGONAL &&&&#10;::::://////%%%%&&&&&"
+            />
+            <figcaption>
+              <strong>Provided ASCII</strong>
+              <span><code>data-alto-ascii</code> lets a handcrafted or precomputed fallback win.</span>
+            </figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <section aria-labelledby="playground-title">
+        <div class="section-title">
+          <h2 id="playground-title">Image Upload Playground</h2>
+          <span class="hint" id="conversion-status">Ready</span>
+        </div>
+        <div class="playground">
+          <form class="controls">
+            <label>
+              Upload image
+              <input id="image-upload" type="file" accept="image/*" />
+            </label>
+            <label>
+              Image description
+              <textarea id="alt-input">Buzz Aldrin standing on the lunar surface during Apollo 11</textarea>
+            </label>
+            <fieldset>
+              <legend>Image scale</legend>
+              <div class="scale-options" id="scale-options">
+                <label><input type="radio" name="image-scale" value="1x" />1x</label>
+                <label><input type="radio" name="image-scale" value="0.75x" />0.75x</label>
+                <label><input type="radio" name="image-scale" value="0.5x" checked />0.5x</label>
+                <label><input type="radio" name="image-scale" value="0.25x" />0.25x</label>
+              </div>
+            </fieldset>
+            <div class="number-grid">
+              <label>
+                Columns
+                <input id="columns-input" type="number" min="8" max="1200" value="360" inputmode="numeric" />
+              </label>
+              <label>
+                Rows
+                <input id="rows-input" type="number" min="4" max="900" value="240" inputmode="numeric" />
+              </label>
+            </div>
+          </form>
+          <div class="conversion-grid">
+            <div class="source-panel">
+              <span class="panel-label">Original image</span>
+              <img
+                id="source-preview"
+                src="./assets/apollo-aldrin.jpg"
+                alt="Buzz Aldrin standing on the lunar surface during Apollo 11"
+                data-alto-ignore
+              />
+            </div>
+            <div class="preview">
+              <span class="panel-label">Pixel ASCII output</span>
+              <span id="live-preview"></span>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <script type="module">
+      import { createAltoFallback, fitAltoFallback, imageToAscii, installAlto } from "../src/index.js";
+
+      const count = document.querySelector("#replacement-count");
+      const altInput = document.querySelector("#alt-input");
+      const imageUpload = document.querySelector("#image-upload");
+      const conversionGrid = document.querySelector(".conversion-grid");
+      const scaleInputs = Array.from(document.querySelectorAll('input[name="image-scale"]'));
+      const columnsInput = document.querySelector("#columns-input");
+      const rowsInput = document.querySelector("#rows-input");
+      const sourcePreview = document.querySelector("#source-preview");
+      const conversionStatus = document.querySelector("#conversion-status");
+      let livePreview = document.querySelector("#live-preview");
+      let activeObjectUrl = "";
+      let customGrid = false;
+      let renderId = 0;
+      let replacements = 0;
+
+      installAlto({
+        onReplace() {
+          replacements += 1;
+          count.textContent = `${replacements} fallback${replacements === 1 ? "" : "s"} rendered`;
+        }
+      });
+
+      function clampNumber(value, min, max, fallback) {
+        const number = Number.parseInt(value, 10);
+        return Number.isFinite(number) ? Math.min(max, Math.max(min, number)) : fallback;
+      }
+
+      function imageSize() {
+        return {
+          height: sourcePreview.naturalHeight || 480,
+          width: sourcePreview.naturalWidth || 720
+        };
+      }
+
+      function imageHeightOverWidth() {
+        const { height, width } = imageSize();
+        return height / Math.max(1, width);
+      }
+
+      function selectedScale() {
+        return scaleInputs.find((input) => input.checked)?.value || "";
+      }
+
+      function setDemoAspect() {
+        const { height, width } = imageSize();
+        conversionGrid.style.setProperty("--demo-aspect", `${width} / ${height}`);
+      }
+
+      function syncGridFromScale() {
+        const scale = Number.parseFloat(selectedScale()) || 0.5;
+        const { height, width } = imageSize();
+        columnsInput.value = Math.min(1200, Math.max(8, Math.round(width * scale)));
+        rowsInput.value = Math.min(900, Math.max(4, Math.round(height * scale)));
+      }
+
+      function syncRowsFromColumns() {
+        const columns = clampNumber(columnsInput.value, 8, 1200, 360);
+        columnsInput.value = columns;
+        rowsInput.value = Math.min(900, Math.max(4, Math.round(columns * imageHeightOverWidth())));
+      }
+
+      function syncColumnsFromRows() {
+        const rows = clampNumber(rowsInput.value, 4, 900, 240);
+        rowsInput.value = rows;
+        columnsInput.value = Math.min(1200, Math.max(8, Math.round(rows / imageHeightOverWidth())));
+      }
+
+      function useCustomGridFrom(field) {
+        customGrid = true;
+        scaleInputs.forEach((input) => {
+          input.checked = false;
+        });
+
+        if (field === "rows") {
+          syncColumnsFromRows();
+          return;
+        }
+
+        syncRowsFromColumns();
+      }
+
+      function currentAsciiOptions() {
+        if (!customGrid && selectedScale()) {
+          return {
+            resolution: selectedScale()
+          };
+        }
+
+        return {
+          columns: columnsInput.value,
+          rows: rowsInput.value
+        };
+      }
+
+      function fitLivePreview() {
+        fitAltoFallback(livePreview);
+      }
+
+      function waitForImage(image) {
+        if (image.complete && image.naturalWidth > 0) {
+          return Promise.resolve();
+        }
+
+        return new Promise((resolve, reject) => {
+          image.addEventListener("load", resolve, { once: true });
+          image.addEventListener("error", () => reject(new Error("Unable to load image.")), { once: true });
+        });
+      }
+
+      async function renderPreview() {
+        const id = ++renderId;
+        const options = currentAsciiOptions();
+        sourcePreview.alt = altInput.value;
+        setDemoAspect();
+        conversionStatus.textContent = "Converting...";
+
+        try {
+          await waitForImage(sourcePreview);
+          const ascii = await imageToAscii(sourcePreview, options);
+
+          if (id !== renderId) {
+            return;
+          }
+
+          const fallback = createAltoFallback(altInput.value, {
+            ...options,
+            aspectRatio: sourcePreview.naturalWidth / Math.max(1, sourcePreview.naturalHeight),
+            ascii
+          });
+
+          columnsInput.value = fallback.style.getPropertyValue("--alto-columns");
+          rowsInput.value = fallback.style.getPropertyValue("--alto-rows");
+          fallback.id = "live-preview";
+          livePreview.replaceWith(fallback);
+          livePreview = fallback;
+          fitLivePreview();
+          conversionStatus.textContent = "Converted";
+        } catch (error) {
+          if (id !== renderId) {
+            return;
+          }
+
+          conversionStatus.textContent = error.message;
+        }
+      }
+
+      imageUpload.addEventListener("change", () => {
+        const file = imageUpload.files?.[0];
+
+        if (!file) {
+          return;
+        }
+
+        if (activeObjectUrl) {
+          URL.revokeObjectURL(activeObjectUrl);
+        }
+
+        activeObjectUrl = URL.createObjectURL(file);
+        sourcePreview.src = activeObjectUrl;
+        sourcePreview.alt = altInput.value || file.name;
+      });
+
+      sourcePreview.addEventListener("load", () => {
+        setDemoAspect();
+
+        if (customGrid) {
+          syncRowsFromColumns();
+        } else {
+          syncGridFromScale();
+        }
+
+        renderPreview();
+      });
+      sourcePreview.addEventListener("error", () => {
+        conversionStatus.textContent = "Unable to load image.";
+      });
+      altInput.addEventListener("input", renderPreview);
+      scaleInputs.forEach((input) => {
+        input.addEventListener("change", () => {
+          customGrid = false;
+          syncGridFromScale();
+          renderPreview();
+        });
+      });
+      columnsInput.addEventListener("input", () => {
+        useCustomGridFrom("columns");
+        renderPreview();
+      });
+      rowsInput.addEventListener("input", () => {
+        useCustomGridFrom("rows");
+        renderPreview();
+      });
+      window.addEventListener("resize", fitLivePreview);
+      setDemoAspect();
+      syncGridFromScale();
+      renderPreview();
+    </script>
+  </body>
+</html>

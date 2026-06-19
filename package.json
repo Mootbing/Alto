@@ -1,0 +1,53 @@
+{
+  "name": "alto-ascii",
+  "version": "0.1.0",
+  "description": "Styled ASCII fallbacks for broken images using their alt text.",
+  "type": "module",
+  "types": "./src/index.d.ts",
+  "license": "MIT",
+  "author": "",
+  "sideEffects": [
+    "./src/alto.css"
+  ],
+  "exports": {
+    ".": {
+      "types": "./src/index.d.ts",
+      "import": "./src/index.js"
+    },
+    "./react": {
+      "types": "./src/react.d.ts",
+      "import": "./src/react.js"
+    },
+    "./style.css": "./src/alto.css"
+  },
+  "files": [
+    "examples",
+    "src",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "demo": "node examples/server.mjs",
+    "test": "node --test",
+    "pack:check": "npm pack --dry-run"
+  },
+  "keywords": [
+    "alt",
+    "ascii",
+    "fallback",
+    "image",
+    "placeholder",
+    "accessibility"
+  ],
+  "peerDependencies": {
+    "react": ">=18.0.0"
+  },
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": true
+    }
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
