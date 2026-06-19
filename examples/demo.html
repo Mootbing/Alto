@@ -139,7 +139,8 @@
 
       .controls,
       .preview,
-      .source-panel {
+      .source-panel,
+      .html-output {
         border: 1px solid var(--line);
         border-radius: 8px;
         background: var(--panel);
@@ -258,6 +259,21 @@
         border-radius: 8px;
         object-fit: contain;
         background: #0c0d10;
+      }
+
+      .html-output {
+        display: grid;
+        grid-column: 1 / -1;
+        gap: 0.65rem;
+        padding: 1rem;
+      }
+
+      #html-output-code {
+        min-height: 13rem;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+        font-size: 0.78rem;
+        line-height: 1.35;
+        overflow: auto;
       }
 
       .panel-label {
@@ -405,6 +421,10 @@
               <span class="panel-label">Pixel ASCII output</span>
               <span id="live-preview"></span>
             </div>
+            <div class="html-output">
+              <span class="panel-label">HTML output</span>
+              <textarea id="html-output-code" readonly spellcheck="false" wrap="off"></textarea>
+            </div>
           </div>
         </div>
       </section>
@@ -422,11 +442,13 @@
       const rowsInput = document.querySelector("#rows-input");
       const sourcePreview = document.querySelector("#source-preview");
       const conversionStatus = document.querySelector("#conversion-status");
+      const htmlOutputCode = document.querySelector("#html-output-code");
       let livePreview = document.querySelector("#live-preview");
       let activeObjectUrl = "";
       let customGrid = false;
       let renderId = 0;
       let replacements = 0;
+      let latestAscii = "";
 
       installAlto({
         onReplace() {
@@ -527,6 +549,86 @@
         fitAltoFallback(livePreview);
       }
 
+      function escapeHtml(value) {
+        return String(value).replace(/[&<>"']/g, (character) => {
+          if (character === "&") {
+            return "&amp;";
+          }
+
+          if (character === "<") {
+            return "&lt;";
+          }
+
+          if (character === ">") {
+            return "&gt;";
+          }
+
+          if (character === "\"") {
+            return "&quot;";
+          }
+
+          return "&#39;";
+        });
+      }
+
+      function inlineStyleFor(fallback) {
+        const properties = [
+          "--alto-bg",
+          "--alto-fg",
+          "--alto-accent",
+          "--alto-muted",
+          "--alto-shadow",
+          "--alto-columns",
+          "--alto-rows",
+          "--alto-x-scale",
+          "--alto-fit-x",
+          "--alto-fit-y"
+        ];
+        const entries = properties
+          .map((name) => [name, fallback.style.getPropertyValue(name).trim()])
+          .filter(([, value]) => value);
+
+        entries.push(["--alto-padding", "0"]);
+        entries.push(["aspect-ratio", conversionGrid.style.getPropertyValue("--demo-aspect").trim() || "3 / 2"]);
+        entries.push(["inline-size", "100%"]);
+
+        return entries.map(([name, value]) => `    ${name}: ${value};`).join("\n");
+      }
+
+      function htmlAttributesFor(fallback) {
+        if (fallback.hasAttribute("aria-hidden")) {
+          return '  aria-hidden="true"';
+        }
+
+        return [
+          '  role="img"',
+          `  aria-label="${escapeHtml(fallback.getAttribute("aria-label") || "image unavailable")}"`
+        ].join("\n");
+      }
+
+      function buildHtmlOutput(fallback, ascii) {
+        return `<span
+  class="${escapeHtml(fallback.className)}"
+${htmlAttributesFor(fallback)}
+  style="
+${escapeHtml(inlineStyleFor(fallback))}
+  "
+>
+  <pre class="alto-fallback__art">${escapeHtml(ascii)}</pre>
+</span>`;
+      }
+
+      function updateHtmlOutput() {
+        if (!latestAscii || !livePreview.classList.contains("alto-fallback")) {
+          htmlOutputCode.value = "";
+          return;
+        }
+
+        requestAnimationFrame(() => {
+          htmlOutputCode.value = buildHtmlOutput(livePreview, latestAscii);
+        });
+      }
+
       function waitForImage(image) {
         if (image.complete && image.naturalWidth > 0) {
           return Promise.resolve();
@@ -564,13 +666,17 @@
           fallback.id = "live-preview";
           livePreview.replaceWith(fallback);
           livePreview = fallback;
+          latestAscii = ascii;
           fitLivePreview();
+          updateHtmlOutput();
           conversionStatus.textContent = "Converted";
         } catch (error) {
           if (id !== renderId) {
             return;
           }
 
+          latestAscii = "";
+          updateHtmlOutput();
           conversionStatus.textContent = error.message;
         }
       }
@@ -621,7 +727,10 @@
         useCustomGridFrom("rows");
         renderPreview();
       });
-      window.addEventListener("resize", fitLivePreview);
+      window.addEventListener("resize", () => {
+        fitLivePreview();
+        updateHtmlOutput();
+      });
       setDemoAspect();
       syncGridFromScale();
       renderPreview();
