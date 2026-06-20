@@ -8,11 +8,17 @@
     <style>
       :root {
         color-scheme: light;
-        --page: #ffffff;
-        --text: #2f3437;
-        --muted: #6b6f76;
-        --accent: #2383e2;
-        --warn: #a16207;
+        --page: #f6f7fb;
+        --surface: #ffffff;
+        --surface-strong: #111827;
+        --text: #151922;
+        --muted: #667085;
+        --line: #d8dee8;
+        --accent: #2367d1;
+        --accent-strong: #174ea6;
+        --success: #2d7d5f;
+        --shadow: 0 1.1rem 2.8rem rgba(25, 37, 67, 0.16);
+        --soft-shadow: 0 0.7rem 1.6rem rgba(25, 37, 67, 0.1);
       }
 
       * {
@@ -20,83 +26,53 @@
       }
 
       body {
+        min-width: 320px;
         margin: 0;
-        background: var(--page);
+        background:
+          linear-gradient(180deg, #ffffff 0, var(--page) 21rem),
+          var(--page);
         color: var(--text);
         font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       }
 
+      button,
+      input,
+      select,
+      textarea {
+        font: inherit;
+      }
+
+      button {
+        cursor: pointer;
+      }
+
       main {
-        width: min(76rem, calc(100% - 2rem));
-        margin: 0 auto;
-        padding: 4rem 0;
-      }
-
-      header {
         display: grid;
-        grid-template-columns: minmax(0, 1fr) auto;
-        gap: 1rem;
-        align-items: end;
+        gap: 1.4rem;
+        width: min(88rem, calc(100% - 2rem));
+        margin: 0 auto;
+        padding: 1.5rem 0 4rem;
       }
 
-      h1,
-      h2,
-      p {
-        margin: 0;
-      }
-
-      h1 {
-        font-size: 3rem;
-        font-weight: 700;
-        line-height: 1.08;
-      }
-
-      h2 {
-        font-size: 1.65rem;
-        line-height: 1.2;
-      }
-
-      p {
-        color: var(--muted);
-        line-height: 1.55;
-      }
-
-      code {
-        color: var(--accent);
-        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
-      }
-
-      .status {
-        display: inline-flex;
-        align-items: center;
-        min-height: 2rem;
-        padding: 0;
-        border: 0;
-        border-radius: 0;
-        background: transparent;
-        color: var(--muted);
-        font-size: 0.86rem;
-        white-space: nowrap;
-      }
-
-      .header-actions {
+      .app-header {
         display: flex;
         flex-wrap: wrap;
-        justify-content: flex-end;
-        gap: 0.5rem;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.8rem;
+      }
+
+      .header-links {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.9rem;
       }
 
       .install-command,
       .nav-link {
-        display: inline-flex;
-        align-items: center;
-        min-height: 2rem;
-        padding: 0;
-        border: 0;
-        border-radius: 0;
-        background: transparent;
         color: var(--accent);
-        font-size: 0.86rem;
+        font-size: 0.9rem;
         text-decoration: none;
         white-space: nowrap;
       }
@@ -105,435 +81,451 @@
         font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
       }
 
-      .install-command code {
-        color: inherit;
+      .status {
+        color: var(--muted);
+        font-size: 0.9rem;
+        white-space: nowrap;
       }
 
-      .gallery {
+      .workspace {
         display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 2rem;
-        margin-top: 1.5rem;
+        gap: 1.05rem;
       }
 
-      figure {
+      .title-row {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: end;
+        justify-content: space-between;
+        gap: 0.85rem;
+      }
+
+      h1 {
         margin: 0;
-      }
-
-      .frame {
-        display: grid;
-        gap: 0.75rem;
-        padding: 0;
-        border: 0;
-        background: transparent;
-      }
-
-      .sample-image,
-      .alto-fallback {
-        inline-size: 100%;
-        block-size: 14rem;
-      }
-
-      .sample-image {
-        display: block;
-        border: 0;
-        border-radius: 0;
-        object-fit: cover;
-        background: transparent;
-      }
-
-      figcaption {
-        display: grid;
-        gap: 0.25rem;
-        min-height: 4.4rem;
-      }
-
-      figcaption strong {
-        font-size: 0.95rem;
-      }
-
-      figcaption span {
-        color: var(--muted);
-        font-size: 0.9rem;
-        line-height: 1.4;
-      }
-
-      .playground {
-        display: grid;
-        grid-template-columns: minmax(18rem, 0.65fr) minmax(22rem, 1fr);
-        gap: 2.5rem;
-        margin-top: 1.3rem;
-      }
-
-      .controls,
-      .preview,
-      .source-panel,
-      .html-output {
-        border: 0;
-        background: transparent;
-      }
-
-      .controls {
-        display: grid;
-        gap: 1rem;
-        align-content: start;
-        padding: 1rem;
-      }
-
-      label {
-        display: grid;
-        gap: 0.45rem;
-        color: var(--muted);
-        font-size: 0.9rem;
-      }
-
-      fieldset {
-        min-inline-size: 0;
-        margin: 0;
-        padding: 0;
-        border: 0;
-      }
-
-      legend {
-        margin-bottom: 0.45rem;
-        color: var(--muted);
-        font-size: 0.9rem;
-      }
-
-      input,
-      textarea {
-        width: 100%;
-        border: 0;
-        border-radius: 0;
-        background: transparent;
         color: var(--text);
-        font: inherit;
+        font-size: clamp(2rem, 4vw, 3.55rem);
+        font-weight: 760;
+        line-height: 0.98;
+        letter-spacing: 0;
       }
 
-      textarea {
-        min-height: 7rem;
-        resize: vertical;
-        padding: 0.75rem;
-        line-height: 1.45;
+      h2,
+      p {
+        margin: 0;
       }
 
-      input[type="file"] {
-        padding: 0;
+      h2 {
+        color: var(--text);
+        font-size: clamp(1.45rem, 2.3vw, 2.15rem);
+        line-height: 1.15;
       }
 
-      input[type="file"]::file-selector-button {
-        margin-inline-end: 0.75rem;
-        border: 0;
-        background: transparent;
+      p {
+        max-width: 58rem;
+        color: var(--muted);
+        line-height: 1.58;
+      }
+
+      code {
         color: var(--accent);
-        font: inherit;
-        padding: 0;
-      }
-
-      input[type="number"] {
-        min-height: 2.35rem;
-        padding: 0;
-      }
-
-      .number-grid {
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 0.8rem;
-      }
-
-      .scale-options {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(4rem, 1fr));
-        gap: 0.7rem;
-      }
-
-      .scale-options label {
-        position: relative;
-        display: grid;
-        min-height: 2.35rem;
-        place-items: center;
-        border: 0;
-        border-radius: 0;
-        background: transparent;
-        color: var(--muted);
-        cursor: pointer;
-      }
-
-      .scale-options input {
-        position: absolute;
-        opacity: 0;
-        pointer-events: none;
-      }
-
-      .scale-options label:has(input:checked) {
-        color: var(--text);
-        font-weight: 650;
-        text-decoration: underline;
-        text-decoration-color: var(--accent);
-        text-decoration-thickness: 0.15rem;
-        text-underline-offset: 0.35rem;
-      }
-
-      .conversion-grid {
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 2rem;
-      }
-
-      .source-panel,
-      .preview {
-        display: grid;
-        gap: 0.65rem;
-        align-content: start;
-        min-height: 20rem;
-        padding: 0;
-      }
-
-      .source-panel img {
-        display: block;
-        width: 100%;
-        height: auto;
-        aspect-ratio: var(--demo-aspect, 3 / 2);
-        border: 0;
-        border-radius: 0;
-        object-fit: contain;
-        background: transparent;
-      }
-
-      .html-output {
-        display: grid;
-        grid-column: 1 / -1;
-        gap: 0.65rem;
-        padding: 0;
-      }
-
-      #html-output-code {
-        min-height: 13rem;
         font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
-        font-size: 0.78rem;
-        line-height: 1.35;
-        overflow: auto;
       }
 
-      .panel-label {
+      .what-section {
+        display: grid;
+        gap: 0.5rem;
+      }
+
+      .generator-bar {
+        display: grid;
+        grid-template-columns: auto minmax(12rem, 1fr) auto auto;
+        align-items: center;
+        gap: 0.65rem;
+        min-height: 4.15rem;
+        padding: 0.65rem;
+        border: 1px solid rgba(33, 44, 67, 0.08);
+        border-radius: 8px;
+        background: var(--surface);
+        box-shadow: var(--shadow);
+      }
+
+      .file-picker,
+      .generate-button,
+      .detail-select {
+        min-height: 2.7rem;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #f8fafc;
+        color: var(--text);
+      }
+
+      .file-picker {
+        display: inline-flex;
+        align-items: center;
+        max-width: 15rem;
+        padding: 0 0.85rem;
+        gap: 0.55rem;
+        cursor: pointer;
+        white-space: nowrap;
+      }
+
+      .file-picker input {
+        position: absolute;
+        inline-size: 1px;
+        block-size: 1px;
+        overflow: hidden;
+        clip: rect(0 0 0 0);
+        clip-path: inset(50%);
+        white-space: nowrap;
+      }
+
+      #file-name {
+        max-width: 7.4rem;
+        overflow: hidden;
         color: var(--muted);
         font-size: 0.86rem;
+        text-overflow: ellipsis;
+      }
+
+      .description-input {
+        width: 100%;
+        min-width: 0;
+        min-height: 2.7rem;
+        border: 0;
+        border-radius: 8px;
+        background: transparent;
+        color: var(--text);
+        outline: none;
+        padding: 0 0.45rem;
+      }
+
+      .description-input::placeholder {
+        color: #98a2b3;
+      }
+
+      .detail-select {
+        padding: 0 2.2rem 0 0.75rem;
+      }
+
+      .generate-button {
+        border-color: transparent;
+        background: var(--accent);
+        color: #ffffff;
+        font-weight: 700;
+      }
+
+      .generate-button {
+        padding: 0 1.2rem;
+      }
+
+      .generate-button:hover {
+        background: var(--accent-strong);
+      }
+
+      .comparison-stage {
+        --demo-aspect: 3 / 2;
+        --reveal: 50%;
+
+        position: relative;
+        width: 100%;
+        min-height: min(64vh, 46rem);
+        overflow: hidden;
+        border: 1px solid rgba(15, 23, 42, 0.14);
+        border-radius: 8px;
+        background: var(--surface-strong);
+        box-shadow: var(--soft-shadow);
+        aspect-ratio: var(--demo-aspect);
+        isolation: isolate;
+      }
+
+      #source-preview,
+      .ascii-reveal,
+      #compare-slider {
+        position: absolute;
+        inset: 0;
+      }
+
+      #source-preview {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .ascii-reveal {
+        z-index: 2;
+        overflow: hidden;
+        background: rgba(11, 17, 29, 0.86);
+        clip-path: inset(0 calc(100% - var(--reveal)) 0 0);
       }
 
       #live-preview.alto-fallback {
         --alto-padding: 0;
+
         inline-size: 100%;
-        block-size: auto;
+        block-size: 100%;
+        min-inline-size: 0;
         min-block-size: 0;
-        aspect-ratio: var(--demo-aspect, 3 / 2);
         border: 0;
+        border-radius: 0;
         background: transparent;
-        color: var(--text);
+        color: #f7fbff;
       }
 
-      #live-preview .alto-fallback__art,
-      .frame .alto-fallback__art {
-        text-shadow: none;
+      #live-preview .alto-fallback__art {
+        text-shadow:
+          0 0 0.42rem rgba(115, 218, 255, 0.36),
+          0 0.08rem 0.12rem rgba(0, 0, 0, 0.72);
       }
 
-      .frame .alto-fallback {
-        border: 0;
+      .comparison-handle {
+        position: absolute;
+        inset-block: 0;
+        inset-inline-start: var(--reveal);
+        z-index: 3;
+        width: 0;
+        pointer-events: none;
+      }
+
+      .comparison-handle::before {
+        position: absolute;
+        inset-block: 0;
+        inset-inline-start: -1px;
+        width: 2px;
+        background: rgba(255, 255, 255, 0.96);
+        box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.2), 0 0 2rem rgba(255, 255, 255, 0.56);
+        content: "";
+      }
+
+      .handle-button {
+        position: absolute;
+        inset-block-start: 50%;
+        inset-inline-start: 0;
+        display: grid;
+        width: 3.4rem;
+        height: 3.4rem;
+        place-items: center;
+        border: 1px solid rgba(15, 23, 42, 0.18);
+        border-radius: 999px;
+        background: #ffffff;
+        box-shadow: 0 0.85rem 2rem rgba(0, 0, 0, 0.28);
+        color: var(--accent);
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+        font-size: 1.05rem;
+        font-weight: 800;
+        transform: translate(-50%, -50%);
+      }
+
+      #compare-slider {
+        z-index: 4;
+        width: 100%;
+        height: 100%;
+        opacity: 0;
+        cursor: ew-resize;
+      }
+
+      .html-box {
+        overflow: hidden;
+        border: 1px solid var(--line);
+        border-radius: 8px;
         background: transparent;
-        color: var(--text);
       }
 
-      .section-title {
+      .html-toolbar {
         display: flex;
+        align-items: center;
         justify-content: space-between;
         gap: 1rem;
-        align-items: center;
-        margin-top: 3.5rem;
+        min-height: 3.5rem;
+        padding: 0.5rem 0.65rem 0.5rem 1rem;
+        border-bottom: 1px solid #e7ebf2;
       }
 
-      .hint {
-        color: var(--warn);
+      .html-toolbar span {
+        color: var(--muted);
         font-size: 0.9rem;
+        font-weight: 700;
       }
 
-      @media (max-width: 880px) {
-        header,
-        .gallery,
-        .playground,
-        .conversion-grid {
-          grid-template-columns: 1fr;
-        }
+      .copy-button {
+        display: inline-grid;
+        width: 2.35rem;
+        height: 2.35rem;
+        place-items: center;
+        border: 1px solid transparent;
+        border-radius: 8px;
+        background: transparent;
+        color: var(--muted);
+        padding: 0;
+      }
 
+      .copy-button:hover {
+        border-color: var(--line);
+        color: var(--text);
+      }
+
+      .copy-button svg {
+        width: 1.05rem;
+        height: 1.05rem;
+        stroke-width: 2;
+      }
+
+      #html-output-code {
+        display: block;
+        width: 100%;
+        min-height: 15rem;
+        padding: 1rem;
+        border: 0;
+        background: transparent;
+        color: #253044;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+        font-size: 0.78rem;
+        line-height: 1.42;
+        outline: none;
+        resize: vertical;
+      }
+
+      .copied {
+        color: var(--success);
+      }
+
+      .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+      }
+
+      @media (max-width: 820px) {
         main {
-          padding-block: 2rem 3rem;
+          width: min(100% - 1rem, 88rem);
+          padding-block: 1rem 3rem;
         }
 
-        h1 {
-          font-size: 2.35rem;
+        .generator-bar {
+          grid-template-columns: 1fr;
+          border-radius: 8px;
         }
 
-        .header-actions {
-          justify-content: flex-start;
+        .file-picker {
+          max-width: none;
+          justify-content: space-between;
         }
 
-        .status {
-          width: fit-content;
+        #file-name {
+          max-width: 12rem;
+        }
+
+        .comparison-stage {
+          min-height: 22rem;
         }
       }
     </style>
   </head>
   <body>
     <main>
-      <header>
-        <div>
-          <h1>Alto ASCII</h1>
-          <p>Broken image fallbacks that turn <code>alt</code> text into styled low-res ASCII blocks.</p>
-        </div>
-        <div class="header-actions">
-          <a class="install-command" href="https://www.npmjs.com/package/alto-ascii"><code>npm install alto-ascii</code></a>
+      <header class="app-header">
+        <div class="header-links">
+          <a class="install-command" href="https://github.com/Mootbing/Alto"><code>npm install github:Mootbing/Alto</code></a>
           <a class="nav-link" href="../docs/how-to-use.html">Docs</a>
-          <span class="status" id="replacement-count">0 fallbacks rendered</span>
         </div>
+        <span class="status" id="conversion-status" aria-live="polite">Ready</span>
       </header>
 
-      <section aria-labelledby="gallery-title">
-        <div class="section-title">
-          <h2 id="gallery-title">Image States</h2>
-          <span class="hint">One real image, two intentional failures.</span>
-        </div>
-        <div class="gallery">
-          <figure class="frame">
-            <img
-              class="sample-image"
-              src="./assets/apollo-aldrin.jpg"
-              alt="Buzz Aldrin standing on the lunar surface during Apollo 11"
-            />
-            <figcaption>
-              <strong>Loaded image</strong>
-              <span>A real raster photo stays untouched when it loads normally.</span>
-            </figcaption>
-          </figure>
-
-          <figure class="frame">
-            <img
-              class="sample-image"
-              src="./missing-kayak-photo.jpg"
-              alt="A yellow kayak crossing a blue alpine lake at sunrise"
-              data-alto-resolution="high"
-            />
-            <figcaption>
-              <strong>Generated fallback</strong>
-              <span>When loading fails, Alto generates a deterministic ASCII block from the alt text.</span>
-            </figcaption>
-          </figure>
-
-          <figure class="frame">
-            <img
-              class="sample-image"
-              src="./missing-poster-photo.jpg"
-              alt="Concert poster with bold diagonal lettering"
-              data-alto-ascii="::::://////%%%%&&&&&#10;:::: POSTER %%&&&&&&#10;///// LIVE ////%%%%#10;&&&& DIAGONAL &&&&#10;::::://////%%%%&&&&&"
-            />
-            <figcaption>
-              <strong>Provided ASCII</strong>
-              <span><code>data-alto-ascii</code> lets a handcrafted or precomputed fallback win.</span>
-            </figcaption>
-          </figure>
-        </div>
+      <section class="what-section" aria-labelledby="what-it-does-title">
+        <h2 id="what-it-does-title">What it does</h2>
+        <p>Alto watches regular <code>&lt;img alt="..."&gt;</code> elements. If an image fails, it replaces the broken image box with a styled ASCII fallback that keeps the human-readable alt text available to assistive technology.</p>
       </section>
 
-      <section aria-labelledby="playground-title">
-        <div class="section-title">
-          <h2 id="playground-title">Image Upload Playground</h2>
-          <span class="hint" id="conversion-status">Ready</span>
+      <section class="workspace" aria-labelledby="playground-title">
+        <div class="title-row">
+          <h1 id="playground-title">Image Upload Playground</h1>
         </div>
-        <div class="playground">
-          <form class="controls">
-            <label>
-              Upload image
-              <input id="image-upload" type="file" accept="image/*" />
-            </label>
-            <label>
-              Image description
-              <textarea id="alt-input">Buzz Aldrin standing on the lunar surface during Apollo 11</textarea>
-            </label>
-            <fieldset>
-              <legend>Image scale</legend>
-              <div class="scale-options" id="scale-options">
-                <label><input type="radio" name="image-scale" value="4x" checked />4x</label>
-                <label><input type="radio" name="image-scale" value="3x" />3x</label>
-                <label><input type="radio" name="image-scale" value="2x" />2x</label>
-                <label><input type="radio" name="image-scale" value="1x" />1x</label>
-                <label><input type="radio" name="image-scale" value="0.75x" />0.75x</label>
-                <label><input type="radio" name="image-scale" value="0.5x" />0.5x</label>
-                <label><input type="radio" name="image-scale" value="0.25x" />0.25x</label>
-              </div>
-            </fieldset>
-            <div class="number-grid">
-              <label>
-                Columns
-                <input id="columns-input" type="number" min="8" max="4800" value="76" inputmode="numeric" />
-              </label>
-              <label>
-                Rows
-                <input id="rows-input" type="number" min="4" max="3600" value="50" inputmode="numeric" />
-              </label>
-            </div>
-          </form>
-          <div class="conversion-grid">
-            <div class="source-panel">
-              <span class="panel-label">Original image</span>
-              <img
-                id="source-preview"
-                src="./assets/apollo-aldrin.jpg"
-                alt="Buzz Aldrin standing on the lunar surface during Apollo 11"
-                data-alto-ignore
-              />
-            </div>
-            <div class="preview">
-              <span class="panel-label">Pixel ASCII output</span>
-              <span id="live-preview"></span>
-            </div>
-            <div class="html-output">
-              <span class="panel-label">HTML output</span>
-              <textarea id="html-output-code" readonly spellcheck="false" wrap="off"></textarea>
-            </div>
+
+        <div class="comparison-stage" id="comparison-stage">
+          <img
+            id="source-preview"
+            src="./assets/apollo-aldrin.jpg"
+            alt="Buzz Aldrin standing on the lunar surface during Apollo 11"
+            data-alto-ignore
+          />
+          <div class="ascii-reveal" id="ascii-reveal" aria-hidden="true">
+            <span id="live-preview"></span>
           </div>
+          <div class="comparison-handle" id="comparison-handle">
+            <span class="handle-button" aria-hidden="true">&lt;&gt;</span>
+          </div>
+          <input id="compare-slider" type="range" min="0" max="100" value="50" aria-label="Reveal ASCII comparison" />
+        </div>
+
+        <form class="generator-bar" id="generator-form">
+          <label class="file-picker">
+            <strong>Upload</strong>
+            <span id="file-name">Apollo sample</span>
+            <input id="image-upload" type="file" accept="image/*" />
+          </label>
+          <input
+            class="description-input"
+            id="alt-input"
+            type="text"
+            value="Buzz Aldrin standing on the lunar surface during Apollo 11"
+            aria-label="Image description"
+            placeholder="Image description"
+          />
+          <select class="detail-select" id="detail-select" aria-label="ASCII detail">
+            <option value="0.35">Soft detail (0.35X)</option>
+            <option value="0.5" selected>Medium detail (0.5X)</option>
+            <option value="0.75">High detail (0.75X)</option>
+            <option value="1">Ultra detail (1X)</option>
+          </select>
+          <button class="generate-button" type="submit">Generate</button>
+        </form>
+
+        <div class="html-box">
+          <div class="html-toolbar">
+            <span>HTML output</span>
+            <button class="copy-button" id="copy-html" type="button" aria-label="Copy HTML">
+              <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="8" y="8" width="12" height="12" rx="2"></rect>
+                <path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"></path>
+              </svg>
+              <span class="sr-only">Copy HTML</span>
+            </button>
+          </div>
+          <textarea id="html-output-code" readonly spellcheck="false" wrap="off"></textarea>
         </div>
       </section>
     </main>
 
     <script type="module">
-      import { createAltoFallback, fitAltoFallback, imageToAscii, installAlto } from "../src/index.js";
+      import { createAltoFallback, fitAltoFallback, imageToAscii } from "../src/index.js";
 
-      const count = document.querySelector("#replacement-count");
       const altInput = document.querySelector("#alt-input");
       const imageUpload = document.querySelector("#image-upload");
-      const conversionGrid = document.querySelector(".conversion-grid");
-      const scaleInputs = Array.from(document.querySelectorAll('input[name="image-scale"]'));
-      const columnsInput = document.querySelector("#columns-input");
-      const rowsInput = document.querySelector("#rows-input");
+      const fileName = document.querySelector("#file-name");
+      const detailSelect = document.querySelector("#detail-select");
+      const generatorForm = document.querySelector("#generator-form");
+      const stage = document.querySelector("#comparison-stage");
+      const compareSlider = document.querySelector("#compare-slider");
+      const asciiReveal = document.querySelector("#ascii-reveal");
       const sourcePreview = document.querySelector("#source-preview");
       const conversionStatus = document.querySelector("#conversion-status");
       const htmlOutputCode = document.querySelector("#html-output-code");
-      const MAX_COLUMNS = 4800;
-      const MAX_ROWS = 3600;
+      const copyHtml = document.querySelector("#copy-html");
+      const MAX_COLUMNS = 1200;
+      const MAX_ROWS = 820;
       let livePreview = document.querySelector("#live-preview");
       let activeObjectUrl = "";
-      let customGrid = false;
       let renderId = 0;
-      let replacements = 0;
       let latestAscii = "";
 
-      installAlto({
-        onReplace() {
-          replacements += 1;
-          count.textContent = `${replacements} fallback${replacements === 1 ? "" : "s"} rendered`;
-        }
-      });
-
-      function clampNumber(value, min, max, fallback) {
-        const number = Number.parseInt(value, 10);
-        return Number.isFinite(number) ? Math.min(max, Math.max(min, number)) : fallback;
+      function clamp(value, min, max) {
+        return Math.min(max, Math.max(min, value));
       }
 
       function imageSize() {
@@ -543,8 +535,8 @@
         };
       }
 
-      function previewSize() {
-        const rect = sourcePreview.getBoundingClientRect();
+      function stageSize() {
+        const rect = stage.getBoundingClientRect();
 
         if (rect.width > 0 && rect.height > 0) {
           return {
@@ -556,67 +548,27 @@
         return imageSize();
       }
 
-      function imageHeightOverWidth() {
-        const { height, width } = previewSize();
-        return height / Math.max(1, width);
-      }
+      function asciiDimensions() {
+        const scale = Number.parseFloat(detailSelect.value) || 0.5;
+        const { height, width } = stageSize();
 
-      function selectedScale() {
-        return scaleInputs.find((input) => input.checked)?.value || "";
+        return {
+          columns: clamp(Math.round(width * scale), 24, MAX_COLUMNS),
+          rows: clamp(Math.round(height * scale), 12, MAX_ROWS)
+        };
       }
 
       function setDemoAspect() {
         const { height, width } = imageSize();
-        conversionGrid.style.setProperty("--demo-aspect", `${width} / ${height}`);
+        stage.style.setProperty("--demo-aspect", `${width} / ${height}`);
       }
 
-      function syncGridFromScale() {
-        const scale = Number.parseFloat(selectedScale()) || 0.5;
-        const { height, width } = previewSize();
-        columnsInput.value = Math.min(MAX_COLUMNS, Math.max(8, Math.round(width * scale)));
-        rowsInput.value = Math.min(MAX_ROWS, Math.max(4, Math.round(height * scale)));
-      }
+      function setReveal(value) {
+        const percent = clamp(Number.parseFloat(value) || 0, 0, 100);
+        const reveal = `${percent}%`;
 
-      function syncRowsFromColumns() {
-        const columns = clampNumber(columnsInput.value, 8, MAX_COLUMNS, 360);
-        columnsInput.value = columns;
-        rowsInput.value = Math.min(MAX_ROWS, Math.max(4, Math.round(columns * imageHeightOverWidth())));
-      }
-
-      function syncColumnsFromRows() {
-        const rows = clampNumber(rowsInput.value, 4, MAX_ROWS, 240);
-        rowsInput.value = rows;
-        columnsInput.value = Math.min(MAX_COLUMNS, Math.max(8, Math.round(rows / imageHeightOverWidth())));
-      }
-
-      function useCustomGridFrom(field) {
-        customGrid = true;
-        scaleInputs.forEach((input) => {
-          input.checked = false;
-        });
-
-        if (field === "rows") {
-          syncColumnsFromRows();
-          return;
-        }
-
-        syncRowsFromColumns();
-      }
-
-      function currentAsciiOptions() {
-        if (!customGrid && selectedScale()) {
-          syncGridFromScale();
-
-          return {
-            columns: columnsInput.value,
-            rows: rowsInput.value
-          };
-        }
-
-        return {
-          columns: columnsInput.value,
-          rows: rowsInput.value
-        };
+        stage.style.setProperty("--reveal", reveal);
+        asciiReveal.style.setProperty("--reveal", reveal);
       }
 
       function fitLivePreview() {
@@ -663,7 +615,7 @@
           .filter(([, value]) => value);
 
         entries.push(["--alto-padding", "0"]);
-        entries.push(["aspect-ratio", conversionGrid.style.getPropertyValue("--demo-aspect").trim() || "3 / 2"]);
+        entries.push(["aspect-ratio", stage.style.getPropertyValue("--demo-aspect").trim() || "3 / 2"]);
         entries.push(["inline-size", "100%"]);
 
         return entries.map(([name, value]) => `    ${name}: ${value};`).join("\n");
@@ -716,7 +668,7 @@ ${escapeHtml(inlineStyleFor(fallback))}
 
       async function renderPreview() {
         const id = ++renderId;
-        const options = currentAsciiOptions();
+        const options = asciiDimensions();
         sourcePreview.alt = altInput.value;
         setDemoAspect();
         conversionStatus.textContent = "Converting...";
@@ -739,8 +691,6 @@ ${escapeHtml(inlineStyleFor(fallback))}
             ascii
           });
 
-          columnsInput.value = fallback.style.getPropertyValue("--alto-columns");
-          rowsInput.value = fallback.style.getPropertyValue("--alto-rows");
           fallback.id = "live-preview";
           livePreview.replaceWith(fallback);
           livePreview = fallback;
@@ -759,6 +709,22 @@ ${escapeHtml(inlineStyleFor(fallback))}
         }
       }
 
+      async function writeClipboard(value) {
+        if (navigator.clipboard?.writeText) {
+          await navigator.clipboard.writeText(value);
+          return;
+        }
+
+        htmlOutputCode.focus();
+        htmlOutputCode.select();
+        document.execCommand("copy");
+      }
+
+      generatorForm.addEventListener("submit", (event) => {
+        event.preventDefault();
+        renderPreview();
+      });
+
       imageUpload.addEventListener("change", () => {
         const file = imageUpload.files?.[0];
 
@@ -773,44 +739,41 @@ ${escapeHtml(inlineStyleFor(fallback))}
         activeObjectUrl = URL.createObjectURL(file);
         sourcePreview.src = activeObjectUrl;
         sourcePreview.alt = altInput.value || file.name;
+        fileName.textContent = file.name;
       });
 
       sourcePreview.addEventListener("load", () => {
         setDemoAspect();
-
-        if (customGrid) {
-          syncRowsFromColumns();
-        } else {
-          syncGridFromScale();
-        }
-
         renderPreview();
       });
+
       sourcePreview.addEventListener("error", () => {
         conversionStatus.textContent = "Unable to load image.";
       });
-      altInput.addEventListener("input", renderPreview);
-      scaleInputs.forEach((input) => {
-        input.addEventListener("change", () => {
-          customGrid = false;
-          syncGridFromScale();
-          renderPreview();
-        });
+
+      detailSelect.addEventListener("change", renderPreview);
+      compareSlider.addEventListener("input", () => setReveal(compareSlider.value));
+      copyHtml.addEventListener("click", async () => {
+        try {
+          await writeClipboard(htmlOutputCode.value);
+          copyHtml.setAttribute("aria-label", "Copied HTML");
+          copyHtml.classList.add("copied");
+          window.setTimeout(() => {
+            copyHtml.setAttribute("aria-label", "Copy HTML");
+            copyHtml.classList.remove("copied");
+          }, 1400);
+        } catch {
+          copyHtml.setAttribute("aria-label", "Copy failed");
+        }
       });
-      columnsInput.addEventListener("input", () => {
-        useCustomGridFrom("columns");
-        renderPreview();
-      });
-      rowsInput.addEventListener("input", () => {
-        useCustomGridFrom("rows");
-        renderPreview();
-      });
+
       window.addEventListener("resize", () => {
         fitLivePreview();
         updateHtmlOutput();
       });
+
+      setReveal(compareSlider.value);
       setDemoAspect();
-      syncGridFromScale();
       renderPreview();
     </script>
   </body>
