@@ -1,6 +1,6 @@
 {
   "name": "alto-ascii",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Styled ASCII fallbacks for broken images using their alt text.",
   "type": "module",
   "types": "./src/index.d.ts",
