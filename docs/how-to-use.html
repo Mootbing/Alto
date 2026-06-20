@@ -7,14 +7,12 @@
     <link rel="stylesheet" href="../src/alto.css" />
     <style>
       :root {
-        color-scheme: dark;
-        --page: #101114;
-        --panel: #181b20;
-        --line: #2b3139;
-        --text: #f5f7fb;
-        --muted: #a8b0bd;
-        --accent: #72e0c8;
-        --warn: #ffcf70;
+        color-scheme: light;
+        --page: #ffffff;
+        --text: #2f3437;
+        --muted: #6b6f76;
+        --accent: #2383e2;
+        --warn: #a16207;
       }
 
       * {
@@ -30,10 +28,10 @@
 
       main {
         display: grid;
-        gap: 1.5rem;
-        width: min(72rem, calc(100% - 2rem));
+        gap: 2.2rem;
+        width: min(64rem, calc(100% - 2rem));
         margin: 0 auto;
-        padding: 2rem 0 3rem;
+        padding: 4rem 0;
       }
 
       header {
@@ -41,8 +39,6 @@
         grid-template-columns: minmax(0, 1fr) auto;
         gap: 1rem;
         align-items: end;
-        padding-bottom: 1.25rem;
-        border-bottom: 1px solid var(--line);
       }
 
       h1,
@@ -53,16 +49,18 @@
       }
 
       h1 {
-        font-size: clamp(1.8rem, 4vw, 3.5rem);
-        line-height: 1;
+        font-size: 3rem;
+        font-weight: 700;
+        line-height: 1.08;
       }
 
       h2 {
-        font-size: 1.1rem;
+        font-size: 1.65rem;
+        line-height: 1.2;
       }
 
       h3 {
-        font-size: 0.95rem;
+        font-size: 1rem;
       }
 
       p,
@@ -87,11 +85,10 @@
       pre {
         margin: 0;
         overflow: auto;
-        padding: 1rem;
-        border: 1px solid var(--line);
-        border-radius: 8px;
-        background: #0c0d10;
-        color: var(--text);
+        padding: 0.35rem 0 0.35rem 1rem;
+        border: 0;
+        background: transparent;
+        color: #37352f;
         line-height: 1.5;
       }
 
@@ -112,19 +109,18 @@
         display: inline-flex;
         align-items: center;
         min-height: 2rem;
-        padding: 0 0.65rem;
-        border: 1px solid var(--line);
-        border-radius: 999px;
-        color: var(--text);
+        padding: 0;
+        border: 0;
+        border-radius: 0;
+        background: transparent;
+        color: var(--accent);
         font-size: 0.86rem;
         text-decoration: none;
         white-space: nowrap;
       }
 
       .install-command {
-        border-color: color-mix(in srgb, var(--accent), transparent 35%);
-        background: color-mix(in srgb, var(--accent), #0c0d10 88%);
-        color: #ecfffb;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
       }
 
       .install-command code {
@@ -133,17 +129,16 @@
 
       .section {
         display: grid;
-        gap: 0.9rem;
-        padding: 1rem;
-        border: 1px solid var(--line);
-        border-radius: 8px;
-        background: var(--panel);
+        gap: 0.85rem;
+        padding: 0;
+        border: 0;
+        background: transparent;
       }
 
       .grid {
         display: grid;
         grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 1rem;
+        gap: 2.5rem;
       }
 
       .note {
@@ -159,6 +154,14 @@
         header,
         .grid {
           grid-template-columns: 1fr;
+        }
+
+        main {
+          padding-block: 2rem 3rem;
+        }
+
+        h1 {
+          font-size: 2.35rem;
         }
 
         .header-actions {
