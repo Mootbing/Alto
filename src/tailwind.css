@@ -1,0 +1,78 @@
+@layer components {
+  .alto-fallback {
+    --alto-bg: hsl(220 22% 12%);
+    --alto-fg: hsl(48 88% 92%);
+    --alto-accent: hsl(180 80% 58%);
+    --alto-muted: hsl(220 16% 24%);
+    --alto-shadow: hsl(220 28% 6%);
+    --alto-radius: 0.5rem;
+    --alto-padding: 0.75rem;
+
+    box-sizing: border-box;
+    display: inline-grid;
+    place-items: center;
+    position: relative;
+    min-inline-size: 8rem;
+    min-block-size: 5rem;
+    overflow: hidden;
+    padding: var(--alto-padding);
+    border: 1px solid var(--alto-muted);
+    border-radius: var(--alto-radius);
+    background:
+      linear-gradient(135deg, transparent 0 42%, color-mix(in srgb, var(--alto-accent), transparent 80%) 42% 58%, transparent 58% 100%),
+      radial-gradient(circle at 22% 18%, color-mix(in srgb, var(--alto-accent), transparent 72%), transparent 26%),
+      linear-gradient(160deg, var(--alto-bg), var(--alto-shadow));
+    color: var(--alto-fg);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    line-height: 0.86;
+    text-align: center;
+    vertical-align: middle;
+    contain: content;
+    container-type: size;
+    isolation: isolate;
+  }
+
+  .alto-fallback__art {
+    margin: 0;
+    overflow: hidden;
+    color: inherit;
+    display: block;
+    font: inherit;
+    font-size: var(--alto-font-size, 10px);
+    letter-spacing: 0;
+    inline-size: max-content;
+    position: absolute;
+    inset-block-start: 50%;
+    inset-inline-start: 50%;
+    max-inline-size: none;
+    max-block-size: none;
+    transform: translate(-50%, -50%) scale(var(--alto-fit-x, var(--alto-x-scale, 1)), var(--alto-fit-y, 1));
+    transform-origin: center;
+    white-space: pre;
+    text-shadow:
+      0 0 0.35rem color-mix(in srgb, var(--alto-accent), transparent 40%),
+      0 0.08rem 0 var(--alto-shadow);
+  }
+}
+
+@supports not (background: color-mix(in srgb, black, white)) {
+  @layer components {
+    .alto-fallback {
+      background:
+        linear-gradient(135deg, transparent 0 42%, rgba(255, 255, 255, 0.08) 42% 58%, transparent 58% 100%),
+        linear-gradient(160deg, var(--alto-bg), var(--alto-shadow));
+    }
+
+    .alto-fallback__art {
+      text-shadow: 0 0.08rem 0 var(--alto-shadow);
+    }
+  }
+}
+
+@supports not (font-size: 1cqw) {
+  @layer components {
+    .alto-fallback__art {
+      font-size: var(--alto-font-size, 0.48rem);
+    }
+  }
+}

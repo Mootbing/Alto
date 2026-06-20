@@ -209,6 +209,8 @@ export function Avatar() {
 }
 ```
 
+The React export is marked with `"use client"` so it can be used inside Next.js App Router projects when rendered as a Client Component.
+
 You can also render ASCII directly:
 
 ```jsx
@@ -224,6 +226,83 @@ export function Preview({ ascii }) {
     />
   );
 }
+```
+
+## Next.js
+
+Use `alto-ascii/next` when you want Alto fallback behavior on top of `next/image`. Import the stylesheet once from `app/layout.tsx` or `app/globals.css`.
+
+```tsx
+// app/layout.tsx
+import "alto-ascii/style.css";
+import type { ReactNode } from "react";
+
+export default function RootLayout({ children }: { children: ReactNode }) {
+  return (
+    <html lang="en">
+      <body>{children}</body>
+    </html>
+  );
+}
+```
+
+```tsx
+// app/components/hero-image.tsx
+import { AltoNextImage } from "alto-ascii/next";
+
+export function HeroImage() {
+  return (
+    <AltoNextImage
+      src="/apollo-aldrin.jpg"
+      alt="Buzz Aldrin standing on the lunar surface during Apollo 11"
+      width={1200}
+      height={900}
+      fallbackResolution="high"
+    />
+  );
+}
+```
+
+`AltoNextImage` imports `next/image` and is a Client Component internally because it listens for image load errors. It can still be rendered from Server Components the same way other Client Components can.
+
+For `fill` images, keep the usual Next.js positioned parent:
+
+```tsx
+<div className="relative h-80 w-full">
+  <AltoNextImage
+    fill
+    src="/missing-photo.jpg"
+    alt="Mountain lake at sunrise"
+    className="object-cover"
+    fallbackClassName="h-full w-full"
+  />
+</div>
+```
+
+## Tailwind CSS
+
+If your app uses Tailwind, import Alto's Tailwind layer stylesheet instead of the plain stylesheet:
+
+```css
+@import "tailwindcss";
+@import "alto-ascii/tailwind.css";
+```
+
+You can also import it from a Next.js root layout:
+
+```tsx
+import "alto-ascii/tailwind.css";
+```
+
+Use Tailwind classes for layout and arbitrary CSS variables for Alto's visual tokens:
+
+```tsx
+<AltoImage
+  src="/missing-photo.jpg"
+  alt="Concert poster with bold diagonal lettering"
+  className="h-64 w-full rounded-none [--alto-padding:0] [--alto-bg:#ffffff] [--alto-fg:#111827] [--alto-muted:#d1d5db]"
+  fallbackResolution="high"
+/>
 ```
 
 ## API Reference

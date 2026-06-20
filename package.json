@@ -15,18 +15,24 @@
   "license": "MIT",
   "author": "",
   "sideEffects": [
-    "./src/alto.css"
+    "./src/alto.css",
+    "./src/tailwind.css"
   ],
   "exports": {
     ".": {
       "types": "./src/index.d.ts",
       "import": "./src/index.js"
     },
+    "./next": {
+      "types": "./src/next.d.ts",
+      "import": "./src/next.js"
+    },
     "./react": {
       "types": "./src/react.d.ts",
       "import": "./src/react.js"
     },
-    "./style.css": "./src/alto.css"
+    "./style.css": "./src/alto.css",
+    "./tailwind.css": "./src/tailwind.css"
   },
   "files": [
     "docs",
@@ -46,13 +52,19 @@
     "ascii",
     "fallback",
     "image",
+    "nextjs",
     "placeholder",
+    "tailwind",
     "accessibility"
   ],
   "peerDependencies": {
+    "next": ">=13.4.0",
     "react": ">=18.0.0"
   },
   "peerDependenciesMeta": {
+    "next": {
+      "optional": true
+    },
     "react": {
       "optional": true
     }

@@ -118,7 +118,7 @@
           <a class="install-command" href="https://www.npmjs.com/package/alto-ascii"><code>npm install alto-ascii</code></a>
         </div>
         <h1>Alto ASCII</h1>
-        <p>Styled ASCII fallbacks for broken images, plus a browser image-to-ASCII converter for making visual alt-style placeholders.</p>
+        <p>Styled ASCII fallbacks for broken images, plus a browser image-to-ASCII converter for making visual alt-style placeholders. Works with plain HTML, React, Next.js, and Tailwind CSS.</p>
         <div class="actions">
           <a class="button" href="./examples/demo.html">Open Demo</a>
           <a class="button" href="./docs/how-to-use.html">How To Use Alto</a>
@@ -129,6 +129,11 @@
       <section class="panel">
         <strong>What it does</strong>
         <p>Alto watches regular <code>&lt;img alt="..."&gt;</code> elements. If an image fails, it replaces the broken image box with a styled ASCII fallback that keeps the human-readable alt text available to assistive technology.</p>
+      </section>
+
+      <section class="panel">
+        <strong>Framework support</strong>
+        <p>Use <code>alto-ascii/react</code> for React, <code>alto-ascii/next</code> for <code>next/image</code>, and <code>alto-ascii/tailwind.css</code> when you want Alto styles inside Tailwind's component layer.</p>
       </section>
     </main>
   </body>
