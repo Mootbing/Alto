@@ -1,0 +1,898 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Alto Wiki Demo</title>
+    <link rel="stylesheet" href="../src/alto.css" />
+    <style>
+      :root {
+        color-scheme: light;
+        --page: #f6f7fb;
+        --paper: #ffffff;
+        --ink: #202122;
+        --muted: #54595d;
+        --line: #a2a9b1;
+        --soft-line: #eaecf0;
+        --link: #0645ad;
+        --visited: #54595d;
+        --accent: #2367d1;
+        --accent-strong: #174ea6;
+        --success: #2d7d5f;
+        --warning: #b45309;
+        --shadow: 0 1.1rem 2.8rem rgba(25, 37, 67, 0.16);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        min-width: 320px;
+        margin: 0;
+        background:
+          linear-gradient(180deg, #ffffff 0, var(--page) 24rem),
+          var(--page);
+        color: var(--ink);
+        font-family: Georgia, "Times New Roman", serif;
+      }
+
+      button,
+      input,
+      select {
+        cursor: pointer;
+        font: inherit;
+      }
+
+      a {
+        color: var(--link);
+        text-decoration: none;
+      }
+
+      a:hover {
+        text-decoration: underline;
+      }
+
+      .demo-shell {
+        width: min(78rem, calc(100% - 2rem));
+        margin: 0 auto;
+        padding: 5.4rem 0 4rem;
+      }
+
+      .demo-topbar {
+        position: fixed;
+        inset-block-start: 0.9rem;
+        inset-inline: 50%;
+        z-index: 20;
+        display: grid;
+        width: min(56rem, calc(100% - 1rem));
+        grid-template-columns: auto minmax(0, 1fr) auto auto auto;
+        align-items: center;
+        gap: 0.65rem;
+        min-height: 4.15rem;
+        padding: 0.65rem;
+        border: 1px solid rgba(33, 44, 67, 0.08);
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.96);
+        box-shadow: var(--shadow);
+        color: #151922;
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        transform: translateX(-50%);
+        backdrop-filter: blur(16px);
+      }
+
+      .brand-chip {
+        display: inline-grid;
+        min-width: 2.7rem;
+        min-height: 2.7rem;
+        place-items: center;
+        border-radius: 999px;
+        background: #111827;
+        color: #ffffff;
+        font-size: 0.95rem;
+        font-weight: 700;
+      }
+
+      .toggle-copy {
+        min-width: 0;
+      }
+
+      .toggle-copy strong,
+      .toggle-copy span {
+        display: block;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .toggle-copy strong {
+        font-size: 0.95rem;
+        font-weight: 650;
+        line-height: 1.1;
+      }
+
+      .toggle-copy span {
+        color: var(--muted);
+        font-size: 0.8rem;
+      }
+
+      .lod-toggle,
+      .resolution-select,
+      .alto-toggle {
+        min-height: 2.7rem;
+        border-radius: 999px;
+        white-space: nowrap;
+      }
+
+      .lod-toggle {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        padding: 0 0.8rem;
+        background: #f8fafc;
+        color: #151922;
+        font-size: 0.88rem;
+        font-weight: 650;
+      }
+
+      .lod-toggle input {
+        width: 1rem;
+        height: 1rem;
+        margin: 0;
+        accent-color: var(--accent);
+      }
+
+      .resolution-select {
+        min-width: 6.5rem;
+        padding: 0 1.9rem 0 0.85rem;
+        border: 0;
+        background: #f8fafc;
+        color: #151922;
+        font-weight: 650;
+      }
+
+      .resolution-select:disabled {
+        background: #e5e7eb;
+        color: var(--muted);
+        cursor: not-allowed;
+        opacity: 0.62;
+      }
+
+      .alto-toggle {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.55rem;
+        padding: 0 1rem;
+        border: 0;
+        background: #f8fafc;
+        color: #151922;
+        font-weight: 650;
+      }
+
+      .alto-toggle:focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 2px;
+      }
+
+      .switch-label {
+        line-height: 1;
+      }
+
+      .switch-track {
+        position: relative;
+        display: inline-block;
+        width: 2.65rem;
+        height: 1.45rem;
+        border-radius: 999px;
+        background: #111827;
+        box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.16);
+        transition: background 160ms ease;
+      }
+
+      .switch-thumb {
+        position: absolute;
+        inset-block-start: 0.18rem;
+        inset-inline-start: 0.18rem;
+        width: 1.09rem;
+        height: 1.09rem;
+        border-radius: 999px;
+        background: #ffffff;
+        box-shadow: 0 0.14rem 0.35rem rgba(15, 23, 42, 0.28);
+        transition: transform 160ms ease;
+      }
+
+      .alto-toggle[aria-checked="true"] .switch-track {
+        background: var(--accent);
+      }
+
+      .alto-toggle[aria-checked="true"] .switch-thumb {
+        transform: translateX(1.2rem);
+      }
+
+      .wiki-page {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(16rem, 20rem);
+        gap: 1.6rem;
+        align-items: start;
+        border: 1px solid var(--line);
+        background: var(--paper);
+        box-shadow: 0 0.6rem 1.5rem rgba(25, 37, 67, 0.08);
+      }
+
+      .article {
+        min-width: 0;
+        padding: 1.25rem 1.5rem 2rem;
+      }
+
+      .site-tabs {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.45rem;
+        margin: 0 0 1rem;
+        padding-block-end: 0.65rem;
+        border-block-end: 1px solid var(--soft-line);
+        font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        font-size: 0.82rem;
+      }
+
+      .site-tabs a {
+        color: var(--visited);
+      }
+
+      h1,
+      h2,
+      h3,
+      p {
+        margin: 0;
+      }
+
+      h1 {
+        padding-block-end: 0.25rem;
+        border-block-end: 1px solid var(--line);
+        font-size: clamp(2.1rem, 4.8vw, 3.35rem);
+        font-weight: 400;
+        line-height: 1.04;
+        letter-spacing: 0;
+      }
+
+      .subtitle {
+        margin-block: 0.45rem 1rem;
+        color: var(--muted);
+        font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        font-size: 0.92rem;
+      }
+
+      .article-grid {
+        display: grid;
+        gap: 1.15rem;
+      }
+
+      .article-grid > *,
+      .article section,
+      .image-row,
+      figure {
+        min-width: 0;
+      }
+
+      .lead {
+        font-size: 1.08rem;
+        line-height: 1.62;
+      }
+
+      .toc {
+        width: min(100%, 18rem);
+        padding: 0.85rem 1rem;
+        border: 1px solid var(--line);
+        background: #f8f9fa;
+        font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+
+      .toc strong {
+        display: block;
+        margin-block-end: 0.5rem;
+      }
+
+      .toc ol {
+        display: grid;
+        gap: 0.22rem;
+        margin: 0;
+        padding-inline-start: 1.15rem;
+        font-size: 0.9rem;
+      }
+
+      h2 {
+        margin-block-start: 0.55rem;
+        padding-block-end: 0.22rem;
+        border-block-end: 1px solid var(--line);
+        font-size: clamp(1.45rem, 2.3vw, 1.9rem);
+        font-weight: 400;
+        line-height: 1.18;
+      }
+
+      h3 {
+        font-size: 1.12rem;
+      }
+
+      p {
+        color: var(--ink);
+        font-size: 1rem;
+        line-height: 1.64;
+      }
+
+      .article ul {
+        margin: 0;
+        padding-inline-start: 1.3rem;
+        line-height: 1.6;
+      }
+
+      .image-row {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.9rem;
+      }
+
+      figure {
+        max-width: 100%;
+        overflow: hidden;
+        margin: 0;
+        border: 1px solid var(--line);
+        background: #f8f9fa;
+      }
+
+      figure img,
+      figure .alto-fallback {
+        display: block;
+        width: 100%;
+        inline-size: 100% !important;
+        block-size: clamp(14rem, 42vw, 22rem) !important;
+        min-height: 18rem;
+        border: 0;
+        border-radius: 0;
+        object-fit: cover;
+      }
+
+      .wide-figure img,
+      .wide-figure .alto-fallback {
+        aspect-ratio: 16 / 7;
+        block-size: clamp(12rem, 32vw, 19rem) !important;
+        object-fit: cover;
+      }
+
+      figcaption {
+        padding: 0.55rem 0.65rem 0.7rem;
+        color: var(--muted);
+        font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        font-size: 0.82rem;
+        line-height: 1.35;
+      }
+
+      .infobox {
+        position: sticky;
+        inset-block-start: 5.9rem;
+        display: grid;
+        gap: 0.65rem;
+        padding: 0.85rem;
+        border-inline-start: 1px solid var(--line);
+        background: #f8f9fa;
+        font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+
+      .infobox h2 {
+        margin: 0;
+        padding: 0.5rem;
+        border: 0;
+        background: #dbeafe;
+        color: #172554;
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: 1.25rem;
+        text-align: center;
+      }
+
+      .infobox img,
+      .infobox .alto-fallback {
+        display: block;
+        width: 100%;
+        inline-size: 100% !important;
+        block-size: 13rem !important;
+        min-height: 12rem;
+        border-radius: 0;
+        object-fit: cover;
+      }
+
+      .fact-list {
+        display: grid;
+        gap: 0.5rem;
+        margin: 0;
+      }
+
+      .fact-list div {
+        display: grid;
+        grid-template-columns: 6.5rem minmax(0, 1fr);
+        gap: 0.55rem;
+        padding-block-end: 0.5rem;
+        border-block-end: 1px solid var(--soft-line);
+        font-size: 0.86rem;
+      }
+
+      .fact-list dt {
+        color: var(--muted);
+        font-weight: 800;
+      }
+
+      .fact-list dd {
+        margin: 0;
+      }
+
+      .status-note {
+        padding: 0.75rem 0.85rem;
+        border-inline-start: 4px solid var(--accent);
+        background: #eff6ff;
+        color: #1e3a8a;
+        font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        font-size: 0.9rem;
+        line-height: 1.45;
+      }
+
+      @media (max-width: 860px) {
+        .demo-shell {
+          width: min(100% - 1rem, 78rem);
+          padding-block-start: 5.9rem;
+        }
+
+        .demo-topbar {
+          grid-template-columns: auto minmax(0, 1fr);
+          border-radius: 28px;
+        }
+
+        .lod-toggle,
+        .resolution-select,
+        .alto-toggle {
+          grid-column: 1 / -1;
+          width: 100%;
+          justify-content: center;
+        }
+
+        .wiki-page {
+          grid-template-columns: 1fr;
+        }
+
+        .article {
+          padding-inline: 1rem;
+        }
+
+        .infobox {
+          position: static;
+          border-block-start: 1px solid var(--line);
+          border-inline-start: 0;
+        }
+
+        .image-row {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="demo-topbar" role="region" aria-label="Alto demo controls">
+      <span class="brand-chip" aria-hidden="true">A</span>
+      <span class="toggle-copy">
+        <strong>Alto image mode</strong>
+        <span id="mode-copy">Local nature images are converted into 2x Alto ASCII.</span>
+      </span>
+      <label class="lod-toggle" for="auto-lod-toggle">
+        <input id="auto-lod-toggle" type="checkbox" />
+        Auto LOD
+      </label>
+      <select class="resolution-select" id="resolution-select" aria-label="Alto image resolution">
+        <option value="0.5">0.5x</option>
+        <option value="1">1x</option>
+        <option value="2" selected>2x</option>
+        <option value="3">3x</option>
+        <option value="4">4x</option>
+      </select>
+      <button class="alto-toggle" id="alto-toggle" type="button" role="switch" aria-checked="true" aria-label="Alto on">
+        <span class="switch-label">Alto</span>
+        <span class="switch-track" aria-hidden="true">
+          <span class="switch-thumb"></span>
+        </span>
+      </button>
+    </div>
+
+    <main class="demo-shell">
+      <section class="wiki-page" aria-label="Wikipedia-style demo article">
+        <article class="article">
+          <nav class="site-tabs" aria-label="Article tools">
+            <a href="../index.html">Alto home</a>
+            <a href="#forests">Article</a>
+            <a href="#gallery">Read</a>
+            <a href="#references">View source</a>
+            <a href="#references">History</a>
+          </nav>
+
+          <h1>Temperate rainforest ecology</h1>
+          <p class="subtitle">Canopy, water, fungi, moss, soil, and wildlife in cool coastal forests</p>
+
+          <div class="article-grid">
+            <p class="lead">
+              Temperate rainforest ecology describes the dense, wet forest systems that form where ocean air, mountain
+              slopes, persistent rain, and mild temperatures support mossy trees, layered understory plants, rotting nurse
+              logs, salmon-bearing streams, fungi, insects, birds, and mammals. This demo uses local nature photographs so Alto
+              can convert real local image pixels into organic ASCII panels.
+            </p>
+
+            <div class="status-note" id="status-note">
+              Alto is active at 2x resolution. Local nature images are converted into ASCII before the fallbacks are applied.
+            </div>
+
+            <nav class="toc" aria-label="Contents">
+              <strong>Contents</strong>
+              <ol>
+                <li><a href="#forests">Forest structure</a></li>
+                <li><a href="#water">Water and nutrients</a></li>
+                <li><a href="#wildlife">Wildlife</a></li>
+                <li><a href="#gallery">Gallery</a></li>
+                <li><a href="#references">References</a></li>
+              </ol>
+            </nav>
+
+            <section id="forests">
+              <h2>Forest structure</h2>
+              <p>
+                Temperate rainforests are often organized as stacked habitats. Large conifers and broadleaf trees form an
+                upper canopy; young saplings, ferns, huckleberry, salal, and fallen trunks shape the understory; and the
+                forest floor holds seed banks, decomposing wood, fungal threads, lichens, and sponge-like moss.
+              </p>
+              <div class="image-row" id="forest-row"></div>
+            </section>
+
+            <section id="water">
+              <h2>Water and nutrients</h2>
+              <p>
+                Rain, fog drip, snowmelt, and stream flow move nutrients through the system. Dead wood stores water and
+                feeds decomposers, while rivers connect upland forests to estuaries and the sea. In many coastal regions,
+                returning fish carry marine nutrients back into forest food webs.
+              </p>
+              <div id="water-row"></div>
+            </section>
+
+            <section id="wildlife">
+              <h2>Wildlife</h2>
+              <p>
+                Animals use the forest in different layers and seasons. Pollinators move between flowers, amphibians shelter
+                in wet leaf litter, birds nest in snags and branches, and larger mammals follow berries, roots, fish, and
+                travel corridors through the shade.
+              </p>
+            </section>
+
+            <section id="gallery">
+              <h2>Gallery</h2>
+              <p>
+                The images below are stored with the demo. Toggle Alto off to see the local JPEGs directly, or leave it on
+                to see the same files become dense Alto panels sized to their article slots and selected resolution.
+              </p>
+              <div class="image-row" id="gallery-row"></div>
+            </section>
+
+            <section id="references">
+              <h2>References</h2>
+              <ul>
+                <li><a href="https://commons.wikimedia.org/wiki/File:Moss_covered_tree,_Hall_of_Mosses_Trail,_Hoh_Rainforest.jpg">Hoh Rainforest moss image on Wikimedia Commons</a></li>
+                <li><a href="https://commons.wikimedia.org/wiki/File:Yosemite_valley_tunnel_view_2010.JPG">Yosemite Valley image on Wikimedia Commons</a></li>
+                <li><a href="https://commons.wikimedia.org/wiki/File:MossesHohRainForest_7306.jpg">Hall of Mosses image on Wikimedia Commons</a></li>
+                <li><a href="https://commons.wikimedia.org/wiki/File:Aerial_view_of_the_Great_Barrier_Reef.JPG">Great Barrier Reef image on Wikimedia Commons</a></li>
+                <li><a href="https://commons.wikimedia.org/wiki/File:Monarch_Butterfly_Danaus_plexippus_Milkweed.jpg">Monarch butterfly image on Wikimedia Commons</a></li>
+                <li><a href="https://commons.wikimedia.org/wiki/File:Monarch_butterfly_on_yellow_flower.jpg">Monarch on yellow flower image on Wikimedia Commons</a></li>
+              </ul>
+            </section>
+          </div>
+        </article>
+
+        <aside class="infobox" aria-label="Article summary">
+          <h2>Temperate rainforest</h2>
+          <div id="infobox-image"></div>
+          <dl class="fact-list">
+            <div>
+              <dt>Layers</dt>
+              <dd>Canopy, understory, forest floor, stream corridor</dd>
+            </div>
+            <div>
+              <dt>Processes</dt>
+              <dd>Rainfall, decomposition, pollination, nutrient cycling</dd>
+            </div>
+            <div>
+              <dt>Demo mode</dt>
+              <dd id="mode-fact">Alto fallbacks active</dd>
+            </div>
+          </dl>
+        </aside>
+      </section>
+    </main>
+
+    <script type="module">
+      import { createAltoFallback, fitAltoFallback, imageToAscii } from "../src/index.js";
+
+      const MAX_COLUMNS = 520;
+      const MAX_ROWS = 340;
+      const toggle = document.querySelector("#alto-toggle");
+      const autoLodToggle = document.querySelector("#auto-lod-toggle");
+      const resolutionSelect = document.querySelector("#resolution-select");
+      const modeCopy = document.querySelector("#mode-copy");
+      const modeFact = document.querySelector("#mode-fact");
+      const statusNote = document.querySelector("#status-note");
+      const targets = {
+        forest: document.querySelector("#forest-row"),
+        gallery: document.querySelector("#gallery-row"),
+        infobox: document.querySelector("#infobox-image"),
+        water: document.querySelector("#water-row")
+      };
+      const images = [
+        {
+          caption: "Moss, fern, bark, rain, and rotting wood make the forest floor a living reservoir.",
+          group: "infobox",
+          src: "./assets/nature-hoh-moss-tree.jpg",
+          alt: "green moss rainforest canopy fern rain cedar nurse log river humid understory",
+          wide: false
+        },
+        {
+          caption: "Mountain valleys collect fog, shade, cold streams, and old-growth forest structure.",
+          group: "forest",
+          src: "./assets/nature-yosemite-valley.jpg",
+          alt: "granite valley waterfall pine forest clouds meadow river cliffs morning light",
+          wide: false
+        },
+        {
+          caption: "The Hall of Mosses shows how epiphytes and wet bark create habitat above the ground.",
+          group: "forest",
+          src: "./assets/nature-hoh-mosses.jpg",
+          alt: "maple trunks draped moss sword fern wet leaves lichen shade rainforest trail",
+          wide: false
+        },
+        {
+          caption: "Reefs, forests, and rivers all show how water shapes habitat boundaries and nutrient flow.",
+          group: "water",
+          src: "./assets/nature-great-barrier-reef.jpg",
+          alt: "turquoise reef lagoon coral islands ocean current seagrass nursery sunlight shallows",
+          wide: true
+        },
+        {
+          caption: "Pollinators connect flower patches and keep seasonal plant communities in motion.",
+          group: "gallery",
+          src: "./assets/nature-monarch-milkweed.jpg",
+          alt: "monarch butterfly orange wings milkweed flower nectar pollen summer meadow",
+          wide: false
+        },
+        {
+          caption: "Wildflower edges become small feeding stations for insects and birds.",
+          group: "gallery",
+          src: "./assets/nature-monarch-yellow-flower.jpg",
+          alt: "yellow wildflower petals butterfly meadow seed heads grass prairie sunlight",
+          wide: false
+        }
+      ];
+      let altoEnabled = true;
+      let renderId = 0;
+      let resizeFrame = 0;
+      let lodRenderTimer = 0;
+
+      function clamp(value, min, max) {
+        return Math.min(max, Math.max(min, value));
+      }
+
+      function selectedResolution() {
+        const resolution = Number.parseFloat(resolutionSelect.value);
+
+        return Number.isFinite(resolution) ? clamp(resolution, 0.25, 4) : 4;
+      }
+
+      function selectedResolutionLabel() {
+        return formatResolution(selectedResolution());
+      }
+
+      function formatResolution(resolution) {
+        return `${resolution.toFixed(2).replace(/\.?0+$/, "")}x`;
+      }
+
+      function autoLodEnabled() {
+        return autoLodToggle.checked;
+      }
+
+      function viewportDistance(rect) {
+        const width = window.innerWidth || document.documentElement.clientWidth || 1;
+        const height = window.innerHeight || document.documentElement.clientHeight || 1;
+        const horizontalDistance = rect.right < 0 ? -rect.right : Math.max(0, rect.left - width);
+        const verticalDistance = rect.bottom < 0 ? -rect.bottom : Math.max(0, rect.top - height);
+
+        return Math.hypot(horizontalDistance, verticalDistance);
+      }
+
+      function autoResolutionForRect(rect) {
+        const viewportHeight = window.innerHeight || document.documentElement.clientHeight || 1;
+        const distance = viewportDistance(rect);
+
+        if (distance <= 0) {
+          return 4;
+        }
+
+        if (distance < viewportHeight * 0.7) {
+          return 3;
+        }
+
+        if (distance < viewportHeight * 1.35) {
+          return 2;
+        }
+
+        return 1;
+      }
+
+      function nextFrame() {
+        return new Promise((resolve) => {
+          requestAnimationFrame(() => resolve());
+        });
+      }
+
+      function waitForImage(image) {
+        if (image.complete && image.naturalWidth > 0) {
+          return Promise.resolve(image);
+        }
+
+        return new Promise((resolve, reject) => {
+          image.addEventListener("load", () => resolve(image), { once: true });
+          image.addEventListener("error", () => reject(new Error(`Unable to load image: ${image.currentSrc || image.src}`)), {
+            once: true
+          });
+        });
+      }
+
+      function dimensionsForBox(width, height, resolution) {
+        return {
+          columns: clamp(Math.round((width / 8) * resolution), 36, MAX_COLUMNS),
+          rows: clamp(Math.round((height / 8) * resolution), 20, MAX_ROWS)
+        };
+      }
+
+      function figureTemplate(image) {
+        const className = image.wide ? "wide-figure" : "";
+
+        return `
+          <figure class="${className}">
+            <img src="${image.src}" alt="${image.alt}" />
+            <figcaption>${image.caption}</figcaption>
+          </figure>
+        `;
+      }
+
+      async function createFallbackFromImage(image) {
+        await waitForImage(image);
+        await nextFrame();
+
+        const rect = image.getBoundingClientRect();
+        const width = rect.width || image.parentElement?.getBoundingClientRect().width || 320;
+        const height = rect.height || image.parentElement?.getBoundingClientRect().height || 180;
+        const resolution = autoLodEnabled() ? autoResolutionForRect(rect) : selectedResolution();
+        const dimensions = dimensionsForBox(width, height, resolution);
+        const ascii = await imageToAscii(image, {
+          ...dimensions,
+          maxColumns: MAX_COLUMNS,
+          maxRows: MAX_ROWS
+        });
+        const fallback = createAltoFallback(image.alt, {
+          ...dimensions,
+          ascii,
+          aspectRatio: width / Math.max(1, height)
+        });
+
+        fallback.style.setProperty("--alto-radius", "0");
+        fallback.dataset.altoLod = formatResolution(resolution);
+        return { fallback, image, resolution };
+      }
+
+      async function replaceImagesWithLocalAlto(activeRenderId) {
+        const candidates = Array.from(document.querySelectorAll("figure img[alt]"));
+        const converted = await Promise.all(candidates.map((image) => createFallbackFromImage(image)));
+
+        if (activeRenderId !== renderId || !altoEnabled) {
+          return;
+        }
+
+        converted.forEach(({ fallback, image }) => {
+          if (activeRenderId !== renderId || !altoEnabled || !image.isConnected) {
+            return;
+          }
+
+          image.replaceWith(fallback);
+          fitAltoFallback(fallback);
+        });
+
+        const resolution = selectedResolutionLabel();
+        const lodValues = [...new Set(converted.map(({ resolution: value }) => formatResolution(value)))].join(", ");
+
+        modeCopy.textContent = autoLodEnabled()
+          ? `Auto LOD is active: visible images use up to 4x, distant slots use ${lodValues}.`
+          : `Local nature images are converted into ${resolution} Alto ASCII.`;
+        modeFact.textContent = "Alto fallbacks active";
+        statusNote.textContent = autoLodEnabled()
+          ? "Auto LOD is active. Each local image is converted based on its distance to the viewport."
+          : `Alto is active at ${resolution} resolution. Local nature images are converted into ASCII before the fallbacks are applied.`;
+      }
+
+      function updateControls() {
+        const resolution = selectedResolutionLabel();
+        const autoLod = autoLodEnabled();
+
+        toggle.setAttribute("aria-checked", String(altoEnabled));
+        toggle.setAttribute("aria-label", altoEnabled ? "Alto on" : "Alto off");
+        resolutionSelect.disabled = autoLod;
+        resolutionSelect.setAttribute("aria-disabled", String(autoLod));
+        modeFact.textContent = altoEnabled ? "Alto fallbacks active" : "Local images active";
+        modeCopy.textContent = altoEnabled
+          ? autoLod
+            ? "Auto LOD is choosing image resolution by viewport distance."
+            : `Converting local nature images into ${resolution} Alto ASCII.`
+          : "The article is showing the same local image files directly.";
+        statusNote.textContent = altoEnabled
+          ? autoLod
+            ? "Auto LOD is active. The manual resolution picker is disabled while image detail follows viewport distance."
+            : `Converting local images into ${resolution} Alto ASCII before applying the fallbacks.`
+          : "Alto is off. The same local JPEG files are shown directly.";
+      }
+
+      function renderImages() {
+        const activeRenderId = ++renderId;
+
+        Object.values(targets).forEach((target) => {
+          target.innerHTML = "";
+        });
+
+        images.forEach((image) => {
+          targets[image.group].insertAdjacentHTML("beforeend", figureTemplate(image));
+        });
+
+        updateControls();
+
+        if (altoEnabled) {
+          replaceImagesWithLocalAlto(activeRenderId).catch((error) => {
+            if (activeRenderId !== renderId) {
+              return;
+            }
+
+            modeCopy.textContent = "A local image could not be converted.";
+            statusNote.textContent = error.message;
+          });
+        }
+      }
+
+      toggle.addEventListener("click", () => {
+        altoEnabled = !altoEnabled;
+        renderImages();
+      });
+
+      resolutionSelect.addEventListener("change", () => {
+        renderImages();
+      });
+
+      autoLodToggle.addEventListener("change", () => {
+        renderImages();
+      });
+
+      window.addEventListener("scroll", () => {
+        if (!altoEnabled || !autoLodEnabled()) {
+          return;
+        }
+
+        window.clearTimeout(lodRenderTimer);
+        lodRenderTimer = window.setTimeout(renderImages, 160);
+      }, { passive: true });
+
+      window.addEventListener("resize", () => {
+        if (!altoEnabled) {
+          return;
+        }
+
+        cancelAnimationFrame(resizeFrame);
+        resizeFrame = requestAnimationFrame(renderImages);
+      });
+
+      renderImages();
+    </script>
+  </body>
+</html>

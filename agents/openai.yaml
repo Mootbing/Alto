@@ -1,0 +1,5 @@
+interface:
+  display_name: "Alto ASCII"
+  short_description: "Accessible image-to-ASCII fallback guidance"
+  brand_color: "#1D4ED8"
+  default_prompt: "Use $alto-ascii to add accessible ASCII image fallbacks."

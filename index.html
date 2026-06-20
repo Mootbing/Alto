@@ -88,7 +88,7 @@
         border: 0;
         color: var(--muted);
         font-size: 0.9rem;
-        font-weight: 700;
+        font-weight: 600;
         text-decoration: none;
         white-space: nowrap;
       }
@@ -692,6 +692,33 @@
         color: inherit;
       }
 
+      .skill-actions {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.8rem;
+      }
+
+      .skill-copy-button {
+        display: inline-flex;
+        align-items: center;
+        min-height: 2rem;
+        border: 0;
+        background: transparent;
+        color: var(--muted);
+        cursor: pointer;
+        font: inherit;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+        font-size: 0.86rem;
+        padding: 0;
+        white-space: nowrap;
+      }
+
+      .skill-copy-button:hover,
+      .skill-copy-button.copied {
+        color: var(--accent);
+      }
+
       .docs-section ul {
         margin-block: 0;
         padding-inline-start: 1.2rem;
@@ -840,6 +867,14 @@
       <header class="app-header">
         <h1 class="brand">Alto</h1>
         <nav class="header-links" aria-label="Project links">
+          <a class="nav-link" href="./examples/wiki.html">
+            <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"></path>
+              <path d="M2 12h20"></path>
+            </svg>
+            Demo
+          </a>
           <a class="nav-link" href="https://github.com/Mootbing/Alto" aria-label="GitHub">
             <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
               <path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.1-1.2-.3-2.5-1-3.5.3-1.2.3-2.4 0-3.5 0 0-1 0-3 1.5a12.3 12.3 0 0 0-8 0C6 2 5 2 5 2c-.3 1.1-.3 2.3 0 3.5A5.4 5.4 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.4.5-.7 1-.9 1.7-.2.6-.2 1.2-.1 1.8v4"></path>
@@ -958,6 +993,7 @@
 
         <nav class="docs-contents" aria-label="Page contents">
           <a href="#install">Install</a>
+          <a href="#llm-skill">LLM Skill</a>
           <a href="#automatic-broken-image-fallbacks">Automatic Broken Image Fallbacks</a>
           <a href="#convert-an-image-to-ascii">Convert An Image To ASCII</a>
           <a href="#usage">Usage</a>
@@ -970,6 +1006,103 @@
             <a class="install-command" href="https://www.npmjs.com/package/alto-ascii"><code>npm install alto-ascii</code></a>
           </div>
           <pre><code>npm install alto-ascii</code></pre>
+        </section>
+
+        <section class="docs-section" id="llm-skill">
+          <h3>LLM Skill</h3>
+          <p>Give this file to an agent so it has the package-specific integration rules, resolution guidance, and browser constraints up front.</p>
+          <div class="skill-actions">
+            <button class="skill-copy-button" type="button" data-copy-skill="#alto-skill-source">Copy SKILL.md</button>
+            <a class="install-command" href="./SKILL.md" download="SKILL.md"><code>Download SKILL.md</code></a>
+          </div>
+          <pre><code id="alto-skill-source">---
+name: alto-ascii
+description: Alto ASCII image fallback guidance for accessible alt-text-to-ASCII rendering. Use when integrating, debugging, documenting, or building with the alto-ascii package, including broken-image replacement, local image conversion, React or Next usage, CSS imports, resolution controls, and accessible fallback behavior.
+metadata:
+  priority: 4
+  docs:
+    - "https://mootbing.github.io/Alto/"
+    - "https://github.com/Mootbing/Alto"
+  pathPatterns:
+    - "package.json"
+    - "src/**"
+    - "examples/**"
+  bashPatterns:
+    - "\\bnpm\\s+(?:install|add)\\s+alto-ascii\\b"
+    - "\\bpnpm\\s+add\\s+alto-ascii\\b"
+    - "\\byarn\\s+add\\s+alto-ascii\\b"
+---
+
+# Alto ASCII
+
+Use Alto to turn broken images, planned image fallbacks, or local image previews into accessible ASCII renderings driven by meaningful alt text.
+
+## Install
+
+```bash
+npm install alto-ascii
+```
+
+Import the stylesheet once in the application entrypoint.
+
+```js
+import "alto-ascii/style.css";
+```
+
+## Automatic broken-image fallbacks
+
+Use `installAlto()` when ordinary image elements should be observed and replaced only after they fail to load.
+
+```js
+import "alto-ascii/style.css";
+import { installAlto } from "alto-ascii";
+
+const stopAlto = installAlto({
+  resolution: "1x"
+});
+```
+
+- Keep the original `alt` text specific and human-readable.
+- Prefer explicit `data-alto-columns` and `data-alto-rows` when a fallback must match a fixed slot.
+- Call the returned cleanup function before tearing down a routed page or temporary preview.
+
+## Planned local conversion
+
+Use `imageToAscii()` when an image loads successfully and the UI intentionally wants an ASCII version.
+
+```js
+import { createAltoFallback, fitAltoFallback, imageToAscii } from "alto-ascii";
+
+const image = document.querySelector("img");
+const ascii = await imageToAscii(image, {
+  columns: 120,
+  rows: 64,
+  maxColumns: 520,
+  maxRows: 340
+});
+
+const fallback = createAltoFallback(image.alt, {
+  ascii,
+  aspectRatio: image.naturalWidth / Math.max(1, image.naturalHeight)
+});
+
+image.replaceWith(fallback);
+fitAltoFallback(fallback);
+```
+
+## Resolution guidance
+
+- Use `resolution` for source-relative scales such as `"4x"`, `"2x"`, `"1x"`, `"0.5x"`, and `"0.25x"`.
+- Use explicit `columns` and `rows` for container-aware demos or responsive slots.
+- Clamp high-resolution conversions with `maxColumns` and `maxRows`.
+- Recompute ASCII after layout changes when the fallback must adapt to the rendered element size.
+
+## Accessibility and browser constraints
+
+- Preserve useful alt text; Alto uses it as the accessible label for the fallback.
+- Treat decorative images as decorative and avoid inventing meaningful labels for them.
+- Import the CSS so `.alto-fallback` receives the package styling.
+- Convert local assets or CORS-safe remote images; browser canvas pixel reads fail for tainted cross-origin images.</code></pre>
         </section>
 
         <section class="docs-section" id="automatic-broken-image-fallbacks">
@@ -1135,6 +1268,7 @@ export function HeroImage() {
       const docsHeader = document.querySelector(".docs-header");
       const docsContents = document.querySelector(".docs-contents");
       const docsLinks = Array.from(document.querySelectorAll(".docs-contents a"));
+      const skillCopyButtons = Array.from(document.querySelectorAll("[data-copy-skill]"));
       const docsTargets = docsLinks
         .map((link) => document.querySelector(link.getAttribute("href") || ""))
         .filter(Boolean);
@@ -1469,6 +1603,30 @@ export default function AltoImage() {
         });
       }
 
+      function setupSkillCopyButtons() {
+        skillCopyButtons.forEach((button) => {
+          button.addEventListener("click", async () => {
+            const source = document.querySelector(button.dataset.copySkill || "");
+
+            if (!source) {
+              return;
+            }
+
+            try {
+              await writeClipboard(source.dataset.rawCode || source.textContent || "");
+              button.textContent = "Copied SKILL.md";
+              button.classList.add("copied");
+              window.setTimeout(() => {
+                button.textContent = "Copy SKILL.md";
+                button.classList.remove("copied");
+              }, 1400);
+            } catch {
+              button.textContent = "Copy failed";
+            }
+          });
+        });
+      }
+
       function setCurrentDocsSection(id) {
         docsLinks.forEach((link) => {
           const isCurrent = link.getAttribute("href") === `#${id}`;
@@ -1703,6 +1861,7 @@ export default function AltoImage() {
       updateResolutionOptions();
       highlightStaticCodeBlocks();
       setupDocsCopyButtons();
+      setupSkillCopyButtons();
       updateDocsContentsBar();
       syncCurrentDocsSectionFromHash();
       renderPreview();
