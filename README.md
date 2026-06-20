@@ -14,10 +14,8 @@ Important: if an image never loads, Alto cannot know the real pixels. Pixel-accu
 
 ## Install
 
-The npm package is not published yet. Until the first npm release, install Alto directly from GitHub:
-
 ```sh
-npm install github:Mootbing/Alto
+npm install alto-ascii
 ```
 
 Import the JavaScript and CSS:
@@ -35,12 +33,6 @@ Hosted demo:
 
 ```text
 https://mootbing.github.io/Alto/
-```
-
-Usage docs:
-
-```text
-https://mootbing.github.io/Alto/docs/how-to-use.html
 ```
 
 Run the local demo:

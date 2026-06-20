@@ -84,7 +84,7 @@
       .status {
         color: var(--muted);
         font-size: 0.9rem;
-        white-space: nowrap;
+        line-height: 1.45;
       }
 
       .workspace {
@@ -326,9 +326,10 @@
 
       .html-box {
         overflow: hidden;
-        border: 1px solid var(--line);
+        border: 0;
         border-radius: 8px;
-        background: transparent;
+        background: var(--surface);
+        box-shadow: var(--shadow);
       }
 
       .html-toolbar {
@@ -338,7 +339,7 @@
         gap: 1rem;
         min-height: 3.5rem;
         padding: 0.5rem 0.65rem 0.5rem 1rem;
-        border-bottom: 1px solid #e7ebf2;
+        border-bottom: 0;
       }
 
       .html-toolbar span {
@@ -352,7 +353,7 @@
         width: 2.35rem;
         height: 2.35rem;
         place-items: center;
-        border: 1px solid transparent;
+        border: 0;
         border-radius: 8px;
         background: transparent;
         color: var(--muted);
@@ -360,7 +361,6 @@
       }
 
       .copy-button:hover {
-        border-color: var(--line);
         color: var(--text);
       }
 
@@ -431,10 +431,9 @@
     <main>
       <header class="app-header">
         <div class="header-links">
-          <a class="install-command" href="https://github.com/Mootbing/Alto"><code>npm install github:Mootbing/Alto</code></a>
-          <a class="nav-link" href="../docs/how-to-use.html">Docs</a>
+          <a class="install-command" href="https://www.npmjs.com/package/alto-ascii"><code>npm install alto-ascii</code></a>
         </div>
-        <span class="status" id="conversion-status" aria-live="polite">Ready</span>
+        <span class="status" id="conversion-status" aria-live="polite">Alto turns broken images into accessible ASCII fallbacks.</span>
       </header>
 
       <section class="what-section" aria-labelledby="what-it-does-title">
@@ -477,12 +476,25 @@
             aria-label="Image description"
             placeholder="Image description"
           />
-          <select class="detail-select" id="detail-select" aria-label="ASCII detail">
-            <option value="0.35">Soft detail (0.35X)</option>
-            <option value="0.5" selected>Medium detail (0.5X)</option>
-            <option value="0.75">High detail (0.75X)</option>
-            <option value="1">Ultra detail (1X)</option>
+          <select class="detail-select" id="detail-select" aria-label="ASCII scale and resolution">
+            <option value="0.25">0.25x</option>
+            <option value="0.5">0.5x</option>
+            <option value="0.75">0.75x</option>
+            <option value="1">1x</option>
+            <option value="1.25">1.25x</option>
+            <option value="1.5">1.5x</option>
+            <option value="1.75">1.75x</option>
+            <option value="2">2x</option>
+            <option value="2.25">2.25x</option>
+            <option value="2.5">2.5x</option>
+            <option value="2.75">2.75x</option>
+            <option value="3">3x</option>
+            <option value="3.25">3.25x</option>
+            <option value="3.5">3.5x</option>
+            <option value="3.75">3.75x</option>
+            <option value="4" selected>4x</option>
           </select>
+          <span class="resolution-readout" id="resolution-output" aria-live="polite">0x0</span>
           <button class="generate-button" type="submit">Generate</button>
         </form>
 
@@ -517,8 +529,10 @@
       const conversionStatus = document.querySelector("#conversion-status");
       const htmlOutputCode = document.querySelector("#html-output-code");
       const copyHtml = document.querySelector("#copy-html");
+      const resolutionOutput = document.querySelector("#resolution-output");
       const MAX_COLUMNS = 1200;
       const MAX_ROWS = 820;
+      const ALTO_DESCRIPTION = "Alto turns broken images into accessible ASCII fallbacks.";
       let livePreview = document.querySelector("#live-preview");
       let activeObjectUrl = "";
       let renderId = 0;
@@ -548,14 +562,36 @@
         return imageSize();
       }
 
-      function asciiDimensions() {
-        const scale = Number.parseFloat(detailSelect.value) || 0.5;
+      function selectedScale() {
+        return Number.parseFloat(detailSelect.value) || 1;
+      }
+
+      function formatScale(scale) {
+        return `${scale.toFixed(2).replace(/\.?0+$/, "")}x`;
+      }
+
+      function asciiDimensionsForScale(scale) {
         const { height, width } = stageSize();
 
         return {
           columns: clamp(Math.round(width * scale), 24, MAX_COLUMNS),
           rows: clamp(Math.round(height * scale), 12, MAX_ROWS)
         };
+      }
+
+      function asciiDimensions() {
+        return asciiDimensionsForScale(selectedScale());
+      }
+
+      function updateResolutionOptions() {
+        for (const option of detailSelect.options) {
+          const scale = Number.parseFloat(option.value);
+          const { columns, rows } = asciiDimensionsForScale(scale);
+          option.textContent = `${formatScale(scale)} - ${columns}x${rows}`;
+        }
+
+        const { columns, rows } = asciiDimensions();
+        resolutionOutput.textContent = `${columns}x${rows}`;
       }
 
       function setDemoAspect() {
@@ -668,10 +704,12 @@ ${escapeHtml(inlineStyleFor(fallback))}
 
       async function renderPreview() {
         const id = ++renderId;
-        const options = asciiDimensions();
+        updateResolutionOptions();
+        const scale = selectedScale();
+        const options = asciiDimensionsForScale(scale);
         sourcePreview.alt = altInput.value;
         setDemoAspect();
-        conversionStatus.textContent = "Converting...";
+        conversionStatus.textContent = ALTO_DESCRIPTION;
 
         try {
           await waitForImage(sourcePreview);
@@ -697,7 +735,7 @@ ${escapeHtml(inlineStyleFor(fallback))}
           latestAscii = ascii;
           fitLivePreview();
           updateHtmlOutput();
-          conversionStatus.textContent = "Converted";
+          conversionStatus.textContent = ALTO_DESCRIPTION;
         } catch (error) {
           if (id !== renderId) {
             return;
@@ -751,7 +789,10 @@ ${escapeHtml(inlineStyleFor(fallback))}
         conversionStatus.textContent = "Unable to load image.";
       });
 
-      detailSelect.addEventListener("change", renderPreview);
+      detailSelect.addEventListener("change", () => {
+        updateResolutionOptions();
+        renderPreview();
+      });
       compareSlider.addEventListener("input", () => setReveal(compareSlider.value));
       copyHtml.addEventListener("click", async () => {
         try {
@@ -768,12 +809,14 @@ ${escapeHtml(inlineStyleFor(fallback))}
       });
 
       window.addEventListener("resize", () => {
+        updateResolutionOptions();
         fitLivePreview();
         updateHtmlOutput();
       });
 
       setReveal(compareSlider.value);
       setDemoAspect();
+      updateResolutionOptions();
       renderPreview();
     </script>
   </body>

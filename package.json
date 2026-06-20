@@ -35,7 +35,6 @@
     "./tailwind.css": "./src/tailwind.css"
   },
   "files": [
-    "docs",
     "examples",
     "index.html",
     "src",

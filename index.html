@@ -2,15 +2,1710 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta http-equiv="refresh" content="0; url=./examples/demo.html" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Alto ASCII Demo</title>
-    <link rel="canonical" href="./examples/demo.html" />
-    <script>
-      window.location.replace("./examples/demo.html");
-    </script>
+    <title>Alto</title>
+    <link rel="stylesheet" href="./src/alto.css" />
+    <style>
+      :root {
+        color-scheme: light;
+        --page: #f6f7fb;
+        --surface: #ffffff;
+        --surface-strong: #111827;
+        --text: #151922;
+        --muted: #667085;
+        --line: #d8dee8;
+        --accent: #2367d1;
+        --accent-strong: #174ea6;
+        --success: #2d7d5f;
+        --shadow: 0 1.1rem 2.8rem rgba(25, 37, 67, 0.16);
+        --soft-shadow: 0 0.7rem 1.6rem rgba(25, 37, 67, 0.1);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        min-width: 320px;
+        margin: 0;
+        background:
+          linear-gradient(180deg, #ffffff 0, var(--page) 21rem),
+          var(--page);
+        color: var(--text);
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+
+      button,
+      input,
+      select,
+      textarea {
+        font: inherit;
+      }
+
+      button {
+        cursor: pointer;
+      }
+
+      main {
+        display: grid;
+        gap: 1.4rem;
+        width: min(88rem, calc(100% - 2rem));
+        margin: 0 auto;
+        padding: 1.5rem 0 4rem;
+      }
+
+      .app-header {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.8rem;
+      }
+
+      .brand {
+        margin: 0;
+        color: var(--text);
+        font-size: clamp(2.4rem, 5vw, 4.5rem);
+        font-weight: 780;
+        line-height: 0.95;
+        letter-spacing: 0;
+      }
+
+      .header-links {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 0.45rem;
+      }
+
+      .nav-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.42rem;
+        min-height: 2.35rem;
+        padding: 0 0.65rem;
+        border: 0;
+        color: var(--muted);
+        font-size: 0.9rem;
+        font-weight: 700;
+        text-decoration: none;
+        white-space: nowrap;
+      }
+
+      .nav-link:hover {
+        color: var(--text);
+      }
+
+      .nav-link svg {
+        width: 1.15rem;
+        height: 1.15rem;
+        stroke-width: 2;
+      }
+
+      .status {
+        color: var(--muted);
+        font-size: 0.9rem;
+        line-height: 1.45;
+      }
+
+      .workspace {
+        display: grid;
+        gap: 1.05rem;
+      }
+
+      code {
+        color: var(--accent);
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      }
+
+      .docs-panel pre {
+        position: relative;
+        margin: 0;
+        overflow: auto;
+        padding: 1rem 3.75rem 1rem 1rem;
+        border: 0;
+        border-radius: 8px;
+        background: var(--surface);
+        box-shadow: var(--shadow);
+        color: #253044;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+        font-size: 0.86rem;
+        line-height: 1.52;
+      }
+
+      .docs-panel pre code {
+        color: inherit;
+      }
+
+      .syntax-tag {
+        color: #0f6bba;
+      }
+
+      .syntax-attr {
+        color: #8a5a00;
+      }
+
+      .syntax-string {
+        color: #0f7b4f;
+      }
+
+      .syntax-keyword {
+        color: #7c3aed;
+      }
+
+      .syntax-number {
+        color: #b45309;
+      }
+
+      .syntax-comment {
+        color: #7a8494;
+      }
+
+      .syntax-punctuation {
+        color: #596273;
+      }
+
+      .docs-copy-button {
+        position: absolute;
+        inset-block-start: 0.55rem;
+        inset-inline-end: 0.55rem;
+        display: inline-grid;
+        width: 2.35rem;
+        height: 2.35rem;
+        place-items: center;
+        border: 0;
+        border-radius: 8px;
+        background: transparent;
+        color: var(--muted);
+        opacity: 0;
+        padding: 0;
+        pointer-events: none;
+        transition: opacity 150ms ease;
+      }
+
+      .docs-panel pre:hover .docs-copy-button,
+      .docs-panel pre:focus-within .docs-copy-button {
+        opacity: 1;
+        pointer-events: auto;
+      }
+
+      .docs-copy-button:hover {
+        color: var(--text);
+      }
+
+      .docs-copy-button svg {
+        width: 1.05rem;
+        height: 1.05rem;
+        stroke-width: 2;
+      }
+
+      p code,
+      li code {
+        padding: 0;
+        border-radius: 0;
+        background: transparent;
+        color: var(--accent);
+      }
+
+      .generator-bar {
+        display: grid;
+        grid-template-columns: auto minmax(12rem, 1fr) auto auto;
+        align-items: center;
+        gap: 0.55rem;
+        min-height: 4.15rem;
+        padding: 0.65rem;
+        border: 1px solid rgba(33, 44, 67, 0.08);
+        border-radius: 999px;
+        background: var(--surface);
+        box-shadow: var(--shadow);
+      }
+
+      .file-picker,
+      .detail-select {
+        min-height: 2.7rem;
+        border: 0;
+        border-radius: 999px;
+        background: #f8fafc;
+        color: var(--text);
+      }
+
+      .file-picker {
+        display: inline-grid;
+        width: 2.7rem;
+        height: 2.7rem;
+        place-items: center;
+        padding: 0;
+        border-color: #111827;
+        background: #111827;
+        color: #ffffff;
+        cursor: pointer;
+      }
+
+      .file-picker:hover {
+        background: #000000;
+      }
+
+      .file-picker svg {
+        width: 1.2rem;
+        height: 1.2rem;
+        stroke-width: 2.2;
+      }
+
+      .file-picker input {
+        position: absolute;
+        inline-size: 1px;
+        block-size: 1px;
+        overflow: hidden;
+        clip: rect(0 0 0 0);
+        clip-path: inset(50%);
+        white-space: nowrap;
+      }
+
+      #file-name {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+      }
+
+      .description-input {
+        width: 100%;
+        min-width: 0;
+        min-height: 2.7rem;
+        border: 0;
+        border-radius: 8px;
+        background: transparent;
+        color: var(--text);
+        outline: none;
+        padding: 0 0.45rem;
+      }
+
+      .description-input::placeholder {
+        color: #98a2b3;
+      }
+
+      .detail-select {
+        padding: 0 2.25rem 0 1rem;
+      }
+
+      .generate-button {
+        display: inline-grid;
+        width: 2.7rem;
+        min-height: 2.7rem;
+        place-items: center;
+        border: 1px solid #111827;
+        border-radius: 999px;
+        background: #111827;
+        color: #ffffff;
+        padding: 0;
+      }
+
+      .generate-button:hover {
+        background: #000000;
+      }
+
+      .generate-button svg {
+        width: 1.1rem;
+        height: 1.1rem;
+        stroke-width: 2.4;
+      }
+
+      .comparison-stage {
+        --demo-aspect: 3 / 2;
+        --reveal: 50%;
+
+        position: relative;
+        width: 100%;
+        min-height: min(64vh, 46rem);
+        overflow: hidden;
+        border: 1px solid rgba(15, 23, 42, 0.14);
+        border-radius: 8px;
+        background: var(--surface-strong);
+        box-shadow: var(--soft-shadow);
+        aspect-ratio: var(--demo-aspect);
+        isolation: isolate;
+      }
+
+      #source-preview,
+      .ascii-reveal,
+      #compare-slider {
+        position: absolute;
+        inset: 0;
+      }
+
+      #source-preview {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .ascii-reveal {
+        z-index: 2;
+        overflow: hidden;
+        background: rgba(11, 17, 29, 0.86);
+        clip-path: inset(0 calc(100% - var(--reveal)) 0 0);
+      }
+
+      #live-preview.alto-fallback {
+        --alto-padding: 0;
+
+        inline-size: 100%;
+        block-size: 100%;
+        min-inline-size: 0;
+        min-block-size: 0;
+        border: 0;
+        border-radius: 0;
+        background: transparent;
+        color: #f7fbff;
+      }
+
+      #live-preview .alto-fallback__art {
+        text-shadow:
+          0 0 0.42rem rgba(115, 218, 255, 0.36),
+          0 0.08rem 0.12rem rgba(0, 0, 0, 0.72);
+      }
+
+      .comparison-handle {
+        position: absolute;
+        inset-block: 0;
+        inset-inline-start: var(--reveal);
+        z-index: 3;
+        width: 0;
+        pointer-events: none;
+      }
+
+      .comparison-handle::before {
+        position: absolute;
+        inset-block: 0;
+        inset-inline-start: -1px;
+        width: 2px;
+        background: rgba(255, 255, 255, 0.96);
+        box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.2), 0 0 2rem rgba(255, 255, 255, 0.56);
+        content: "";
+      }
+
+      .handle-button {
+        position: absolute;
+        inset-block-start: 50%;
+        inset-inline-start: 0;
+        display: grid;
+        width: 3.4rem;
+        height: 3.4rem;
+        place-items: center;
+        border: 1px solid rgba(15, 23, 42, 0.18);
+        border-radius: 999px;
+        background: #ffffff;
+        box-shadow: 0 0.85rem 2rem rgba(0, 0, 0, 0.28);
+        color: var(--accent);
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+        font-size: 1.05rem;
+        font-weight: 800;
+        transform: translate(-50%, -50%);
+      }
+
+      #compare-slider {
+        z-index: 4;
+        width: 100%;
+        height: 100%;
+        opacity: 0;
+        cursor: ew-resize;
+      }
+
+      .html-box {
+        overflow: hidden;
+        border: 0;
+        border-radius: 8px;
+        background: var(--surface);
+        box-shadow: var(--shadow);
+      }
+
+      .output-toggle {
+        justify-self: center;
+        padding: 0.1rem 0.15rem;
+        border: 0;
+        background: transparent;
+        color: var(--muted);
+        font-size: 0.78rem;
+        font-weight: 700;
+        line-height: 1.3;
+        text-decoration-line: underline;
+        text-decoration-style: dotted;
+        text-decoration-thickness: 1px;
+        text-underline-offset: 0.24em;
+      }
+
+      .output-toggle:hover {
+        color: var(--text);
+      }
+
+      .html-toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        min-height: 3.5rem;
+        padding: 0.5rem 0.75rem 0.5rem 1rem;
+        border-bottom: 0;
+      }
+
+      .output-title {
+        color: var(--muted);
+        font-size: 0.9rem;
+        font-weight: 700;
+      }
+
+      .output-actions {
+        display: flex;
+        align-items: center;
+        gap: 0.45rem;
+      }
+
+      .output-tabs {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        padding: 0;
+        border: 0;
+        border-radius: 999px;
+        background: transparent;
+        box-shadow: none;
+      }
+
+      .output-tab {
+        min-height: 2rem;
+        padding: 0 0.75rem;
+        border: 0;
+        border-radius: 999px;
+        background: transparent;
+        color: var(--muted);
+        font-size: 0.82rem;
+        font-weight: 700;
+      }
+
+      .output-tab[aria-pressed="true"] {
+        background: #111827;
+        color: #ffffff;
+        box-shadow: none;
+      }
+
+      .copy-button {
+        display: inline-grid;
+        width: 2.35rem;
+        height: 2.35rem;
+        place-items: center;
+        border: 0;
+        border-radius: 8px;
+        background: transparent;
+        color: var(--muted);
+        padding: 0;
+      }
+
+      .copy-button:hover {
+        color: var(--text);
+      }
+
+      .copy-button svg {
+        width: 1.05rem;
+        height: 1.05rem;
+        stroke-width: 2;
+      }
+
+      #html-output-code {
+        display: block;
+        width: 100%;
+        min-height: 15rem;
+        padding: 1rem;
+        border: 0;
+        background: transparent;
+        color: #253044;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+        font-size: 0.78rem;
+        line-height: 1.42;
+        outline: none;
+        overflow: auto;
+        white-space: pre;
+      }
+
+      #html-output-code code {
+        color: inherit;
+      }
+
+      .docs-panel {
+        display: grid;
+        grid-template-columns: minmax(12rem, 15rem) minmax(0, 54rem);
+        align-items: start;
+        justify-content: start;
+        gap: 2rem clamp(1.75rem, 4vw, 3.25rem);
+        width: 100%;
+        margin: 2.2rem 0 0;
+        padding-top: 1.4rem;
+      }
+
+      .docs-header {
+        display: grid;
+        grid-column: 2;
+        gap: 0.75rem;
+      }
+
+      .docs-header h2,
+      .docs-section h3,
+      .docs-section p {
+        margin: 0;
+      }
+
+      .docs-header h2 {
+        font-size: clamp(2.35rem, 5vw, 4rem);
+        line-height: 1.08;
+      }
+
+      .docs-lead {
+        max-width: 44rem;
+        color: var(--muted);
+        font-size: 1.05rem;
+        line-height: 1.55;
+      }
+
+      .docs-contents {
+        display: grid;
+        position: sticky;
+        top: 1rem;
+        grid-column: 1;
+        grid-row: 1 / span 12;
+        gap: 0.35rem;
+        max-height: calc(100vh - 2rem);
+        overflow: auto;
+        padding-top: 0.25rem;
+      }
+
+      .docs-contents a {
+        width: 100%;
+        color: var(--muted);
+        line-height: 1.35;
+        text-decoration: none;
+      }
+
+      .docs-contents a:hover {
+        color: var(--accent);
+      }
+
+      .docs-contents a[aria-current="location"] {
+        color: var(--text);
+        font-weight: 760;
+      }
+
+      .docs-section {
+        display: grid;
+        gap: 0.75rem;
+        min-width: 0;
+      }
+
+      .docs-panel > .docs-section {
+        grid-column: 2;
+      }
+
+      .docs-section-header {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.75rem;
+      }
+
+      .docs-section-header h3 {
+        margin: 0;
+      }
+
+      .usage-tabs {
+        margin-inline-start: auto;
+      }
+
+      .usage-tabs .output-tab[aria-pressed="true"] {
+        background: #ffffff;
+        color: #111827;
+      }
+
+      .usage-panel {
+        display: grid;
+        gap: 0.75rem;
+      }
+
+      .usage-panel[hidden] {
+        display: none;
+      }
+
+      .docs-section h3 {
+        margin-top: 0.5rem;
+        font-size: 1.45rem;
+        line-height: 1.25;
+      }
+
+      .docs-section .docs-section-header h3 {
+        margin: 0;
+      }
+
+      .docs-section p,
+      .docs-section li {
+        color: var(--muted);
+        line-height: 1.55;
+      }
+
+      .docs-grid {
+        display: grid;
+        grid-column: 2;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 2.25rem;
+        min-width: 0;
+      }
+
+      .install-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.8rem;
+      }
+
+      .install-command {
+        display: inline-flex;
+        align-items: center;
+        min-height: 2rem;
+        color: var(--muted);
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+        font-size: 0.86rem;
+        text-decoration: none;
+        white-space: nowrap;
+      }
+
+      .install-command:hover {
+        color: var(--accent);
+      }
+
+      .install-command code {
+        padding: 0;
+        background: transparent;
+        color: inherit;
+      }
+
+      .docs-section ul {
+        margin-block: 0;
+        padding-inline-start: 1.2rem;
+      }
+
+      .docs-note {
+        color: #8a5a00;
+      }
+
+      @media (max-width: 980px) {
+        .docs-panel {
+          grid-template-columns: minmax(0, 52rem);
+          gap: 1.6rem;
+          width: min(52rem, 100%);
+        }
+
+        .docs-header,
+        .docs-contents,
+        .docs-panel > .docs-section,
+        .docs-grid {
+          grid-column: 1;
+        }
+
+        .docs-contents {
+          position: fixed;
+          top: 0;
+          z-index: 5;
+          display: flex;
+          gap: 0.9rem;
+          inset-inline: 0;
+          max-height: none;
+          overflow-x: auto;
+          overflow-y: hidden;
+          padding: 0.75rem max(0.5rem, calc((100vw - 52rem) / 2));
+          border-bottom: 1px solid var(--line);
+          background: rgba(246, 247, 251, 0.96);
+          opacity: 0;
+          pointer-events: none;
+          scrollbar-width: thin;
+          transform: translateY(-100%);
+          transition:
+            opacity 160ms ease,
+            transform 160ms ease;
+          backdrop-filter: blur(12px);
+        }
+
+        .docs-contents.docs-contents--visible {
+          opacity: 1;
+          pointer-events: auto;
+          transform: translateY(0);
+        }
+
+        .docs-contents a {
+          flex: 0 0 auto;
+          width: auto;
+          white-space: nowrap;
+        }
+
+        .docs-contents::before {
+          content: none;
+        }
+
+        .docs-panel > .docs-section {
+          scroll-margin-top: 4rem;
+        }
+      }
+
+      .copied {
+        color: var(--success);
+      }
+
+      .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+      }
+
+      @media (max-width: 820px) {
+        main {
+          width: min(100% - 1rem, 88rem);
+          padding-block: 1rem 3rem;
+        }
+
+        .app-header {
+          align-items: flex-start;
+        }
+
+        .header-links {
+          width: 100%;
+          justify-content: flex-start;
+        }
+
+        .generator-bar {
+          grid-template-columns: 1fr;
+          border-radius: 28px;
+        }
+
+        .file-picker {
+          width: 100%;
+        }
+
+        #file-name {
+          max-width: 12rem;
+        }
+
+        .comparison-stage {
+          min-height: 22rem;
+        }
+
+        .html-toolbar {
+          align-items: flex-start;
+        }
+
+        .output-actions {
+          width: 100%;
+          justify-content: space-between;
+        }
+
+        .output-tabs {
+          max-width: calc(100% - 2.8rem);
+          overflow-x: auto;
+        }
+
+        .usage-tabs {
+          max-width: 100%;
+        }
+
+        .docs-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .docs-header h2 {
+          font-size: 2.35rem;
+        }
+      }
+    </style>
   </head>
   <body>
-    <p><a href="./examples/demo.html">Open the Alto ASCII demo</a></p>
+    <main>
+      <header class="app-header">
+        <h1 class="brand">Alto</h1>
+        <nav class="header-links" aria-label="Project links">
+          <a class="nav-link" href="https://github.com/Mootbing/Alto" aria-label="GitHub">
+            <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.1-1.2-.3-2.5-1-3.5.3-1.2.3-2.4 0-3.5 0 0-1 0-3 1.5a12.3 12.3 0 0 0-8 0C6 2 5 2 5 2c-.3 1.1-.3 2.3 0 3.5A5.4 5.4 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.4.5-.7 1-.9 1.7-.2.6-.2 1.2-.1 1.8v4"></path>
+              <path d="M9 18c-4.5 2-5-2-7-2"></path>
+            </svg>
+          </a>
+          <a class="nav-link" href="https://www.npmjs.com/package/alto-ascii">
+            npm.js
+          </a>
+        </nav>
+      </header>
+
+      <section class="workspace" aria-label="Image upload playground">
+        <span class="status" id="conversion-status" aria-live="polite">Alto turns broken images into accessible ASCII fallbacks.</span>
+
+        <div class="comparison-stage" id="comparison-stage">
+          <img
+            id="source-preview"
+            src="./examples/assets/apollo-aldrin.jpg"
+            alt="Buzz Aldrin standing on the lunar surface during Apollo 11"
+            data-alto-ignore
+          />
+          <div class="ascii-reveal" id="ascii-reveal" aria-hidden="true">
+            <span id="live-preview"></span>
+          </div>
+          <div class="comparison-handle" id="comparison-handle">
+            <span class="handle-button" aria-hidden="true">&lt;&gt;</span>
+          </div>
+          <input id="compare-slider" type="range" min="0" max="100" value="50" aria-label="Reveal ASCII comparison" />
+        </div>
+
+        <form class="generator-bar" id="generator-form">
+          <label class="file-picker" aria-label="Upload image">
+            <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+              <circle cx="9" cy="9" r="2"></circle>
+              <path d="m21 15-3.1-3.1a2 2 0 0 0-2.8 0L6 21"></path>
+            </svg>
+            <span id="file-name">Apollo sample</span>
+            <input id="image-upload" type="file" accept="image/*" />
+          </label>
+          <input
+            class="description-input"
+            id="alt-input"
+            type="text"
+            value="Buzz Aldrin standing on the lunar surface during Apollo 11"
+            aria-label="Image description"
+            placeholder="Image description"
+          />
+          <select class="detail-select" id="detail-select" aria-label="ASCII scale and resolution">
+            <option value="0.25">0.25x</option>
+            <option value="0.5">0.5x</option>
+            <option value="0.75">0.75x</option>
+            <option value="1">1x</option>
+            <option value="1.25">1.25x</option>
+            <option value="1.5">1.5x</option>
+            <option value="1.75">1.75x</option>
+            <option value="2">2x</option>
+            <option value="2.25">2.25x</option>
+            <option value="2.5">2.5x</option>
+            <option value="2.75">2.75x</option>
+            <option value="3">3x</option>
+            <option value="3.25">3.25x</option>
+            <option value="3.5">3.5x</option>
+            <option value="3.75">3.75x</option>
+            <option value="4" selected>4x</option>
+          </select>
+          <button class="generate-button" type="submit" aria-label="Generate ASCII">
+            <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 19V5"></path>
+              <path d="m5 12 7-7 7 7"></path>
+            </svg>
+          </button>
+        </form>
+
+        <button
+          class="output-toggle"
+          id="show-output"
+          type="button"
+          aria-controls="output-panel"
+          aria-expanded="false"
+        >
+          show output
+        </button>
+
+        <div class="html-box" id="output-panel" hidden>
+          <div class="html-toolbar">
+            <span class="output-title">Output</span>
+            <div class="output-actions">
+              <div class="output-tabs" role="group" aria-label="Output format">
+                <button class="output-tab" type="button" data-output-mode="tailwind" aria-pressed="false">Tailwind.js</button>
+                <button class="output-tab" type="button" data-output-mode="next" aria-pressed="false">Next.js</button>
+                <button class="output-tab" type="button" data-output-mode="html" aria-pressed="true">HTML</button>
+              </div>
+              <button class="copy-button" id="copy-html" type="button" aria-label="Copy output">
+                <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="8" y="8" width="12" height="12" rx="2"></rect>
+                  <path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"></path>
+                </svg>
+                <span class="sr-only">Copy output</span>
+              </button>
+            </div>
+          </div>
+          <pre id="html-output-code" tabindex="0"><code></code></pre>
+        </div>
+        <button class="output-toggle" id="hide-output" type="button" aria-controls="output-panel" hidden>
+          hide output
+        </button>
+      </section>
+
+      <section class="docs-panel" id="how-to-use-alto" aria-labelledby="how-to-use-title">
+        <header class="docs-header">
+          <h2 id="how-to-use-title">How To Use Alto</h2>
+          <p class="docs-lead">Install the npm package, import the CSS, then let Alto replace failed images with styled ASCII fallbacks.</p>
+        </header>
+
+        <nav class="docs-contents" aria-label="Page contents">
+          <a href="#install">Install</a>
+          <a href="#automatic-broken-image-fallbacks">Automatic Broken Image Fallbacks</a>
+          <a href="#convert-an-image-to-ascii">Convert An Image To ASCII</a>
+          <a href="#usage">Usage</a>
+          <a href="#accessibility-notes">Accessibility Notes</a>
+        </nav>
+
+        <section class="docs-section" id="install">
+          <h3>Install</h3>
+          <div class="install-row">
+            <a class="install-command" href="https://www.npmjs.com/package/alto-ascii"><code>npm install alto-ascii</code></a>
+          </div>
+          <pre><code>npm install alto-ascii</code></pre>
+        </section>
+
+        <section class="docs-section" id="automatic-broken-image-fallbacks">
+          <h3>Automatic Broken Image Fallbacks</h3>
+          <pre><code>&lt;link rel="stylesheet" href="/node_modules/alto-ascii/src/alto.css" /&gt;
+
+&lt;img
+  src="/missing-photo.jpg"
+  alt="A yellow kayak crossing a blue alpine lake at sunrise"
+  data-alto-resolution="high"
+/&gt;
+
+&lt;script type="module"&gt;
+  import { installAlto } from "alto-ascii";
+
+  installAlto();
+&lt;/script&gt;</code></pre>
+          <p>Keep <code>alt</code> text readable and meaningful. Alto uses that same text as the accessible label for the generated fallback.</p>
+        </section>
+
+        <section class="docs-grid">
+          <div class="docs-section" id="use-exact-dimensions">
+            <h3>Use Exact Dimensions</h3>
+            <pre><code>&lt;img
+  src="/missing-photo.jpg"
+  alt="Glass building at night"
+  data-alto-columns="80"
+  data-alto-rows="48"
+/&gt;</code></pre>
+            <p>Exact columns and rows override density presets.</p>
+          </div>
+
+          <div class="docs-section" id="use-source-scale">
+            <h3>Use Source Scale</h3>
+            <pre><code>const ascii = await imageToAscii(imageElement, {
+  resolution: "0.5x"
+});</code></pre>
+            <p>For image conversion, use <code>4x</code>, <code>3x</code>, <code>2x</code>, <code>1x</code>, <code>0.75x</code>, <code>0.5x</code>, or <code>0.25x</code>.</p>
+          </div>
+        </section>
+
+        <section class="docs-section" id="convert-an-image-to-ascii">
+          <h3>Convert An Image To ASCII</h3>
+          <pre><code>import { createAltoFallback, fitAltoFallback, imageToAscii } from "alto-ascii";
+import "alto-ascii/style.css";
+
+const image = document.querySelector("img");
+const ascii = await imageToAscii(image, {
+  maxColumns: 4800,
+  maxRows: 3600,
+  resolution: "1x"
+});
+
+const fallback = createAltoFallback(image.alt, {
+  ascii,
+  aspectRatio: image.naturalWidth / image.naturalHeight
+});
+
+document.body.append(fallback);
+fitAltoFallback(fallback);</code></pre>
+        </section>
+
+        <section class="docs-section" id="usage">
+          <div class="docs-section-header">
+            <h3>Usage</h3>
+            <div class="output-tabs usage-tabs" role="group" aria-label="Usage example">
+              <button class="output-tab" type="button" data-usage-mode="react" aria-pressed="true">React</button>
+              <button class="output-tab" type="button" data-usage-mode="next" aria-pressed="false">Next.js</button>
+              <button class="output-tab" type="button" data-usage-mode="tailwind" aria-pressed="false">Tailwind</button>
+            </div>
+          </div>
+
+          <div class="usage-panel" data-usage-panel="react">
+            <pre><code>import { AltoImage } from "alto-ascii/react";
+import "alto-ascii/style.css";
+
+export function Example() {
+  return (
+    &lt;AltoImage
+      src="/missing-photo.jpg"
+      alt="Portrait of Jules in a green jacket"
+      fallbackResolution="high"
+    /&gt;
+  );
+}</code></pre>
+          </div>
+
+          <div class="usage-panel" data-usage-panel="next" hidden>
+            <p>Use the <code>alto-ascii/next</code> export when you want Alto fallback behavior on top of <code>next/image</code>. The component is marked as a Client Component internally because it listens for image errors.</p>
+            <pre><code>// app/layout.tsx
+import "alto-ascii/style.css";
+import type { ReactNode } from "react";
+
+export default function RootLayout({ children }: { children: ReactNode }) {
+  return (
+    &lt;html lang="en"&gt;
+      &lt;body&gt;{children}&lt;/body&gt;
+    &lt;/html&gt;
+  );
+}</code></pre>
+            <pre><code>// app/components/hero-image.tsx
+import { AltoNextImage } from "alto-ascii/next";
+
+export function HeroImage() {
+  return (
+    &lt;AltoNextImage
+      src="/apollo-aldrin.jpg"
+      alt="Buzz Aldrin standing on the lunar surface during Apollo 11"
+      width={1200}
+      height={900}
+      fallbackResolution="high"
+    /&gt;
+  );
+}</code></pre>
+          </div>
+
+          <div class="usage-panel" data-usage-panel="tailwind" hidden>
+            <p>Import Alto's Tailwind layer stylesheet when your app is already organized around Tailwind layers.</p>
+            <pre><code>@import "tailwindcss";
+@import "alto-ascii/tailwind.css";</code></pre>
+            <p>Use Tailwind classes for sizing and arbitrary CSS variables for Alto tokens.</p>
+            <pre><code>&lt;AltoImage
+  src="/missing-photo.jpg"
+  alt="Concert poster with bold diagonal lettering"
+  className="h-64 w-full rounded-none [--alto-padding:0] [--alto-bg:#ffffff] [--alto-fg:#111827] [--alto-muted:#d1d5db]"
+  fallbackResolution="high"
+/&gt;</code></pre>
+          </div>
+        </section>
+
+        <section class="docs-section" id="accessibility-notes">
+          <h3>Accessibility Notes</h3>
+          <ul>
+            <li>Do not put ASCII art inside the <code>alt</code> attribute. Keep the alt text human-readable.</li>
+            <li>Use empty <code>alt=""</code> only for decorative images.</li>
+            <li class="docs-note">The ASCII output is visual decoration. The accessible label remains the original alt description.</li>
+          </ul>
+        </section>
+      </section>
+    </main>
+
+    <script type="module">
+      import { createAltoFallback, fitAltoFallback, imageToAscii } from "./src/index.js";
+
+      const altInput = document.querySelector("#alt-input");
+      const imageUpload = document.querySelector("#image-upload");
+      const fileName = document.querySelector("#file-name");
+      const detailSelect = document.querySelector("#detail-select");
+      const generatorForm = document.querySelector("#generator-form");
+      const stage = document.querySelector("#comparison-stage");
+      const compareSlider = document.querySelector("#compare-slider");
+      const asciiReveal = document.querySelector("#ascii-reveal");
+      const sourcePreview = document.querySelector("#source-preview");
+      const conversionStatus = document.querySelector("#conversion-status");
+      const outputPanel = document.querySelector("#output-panel");
+      const showOutput = document.querySelector("#show-output");
+      const hideOutput = document.querySelector("#hide-output");
+      const htmlOutputCode = document.querySelector("#html-output-code code");
+      const copyHtml = document.querySelector("#copy-html");
+      const outputModeButtons = Array.from(document.querySelectorAll("[data-output-mode]"));
+      const usageModeButtons = Array.from(document.querySelectorAll("[data-usage-mode]"));
+      const usagePanels = Array.from(document.querySelectorAll("[data-usage-panel]"));
+      const docsHeader = document.querySelector(".docs-header");
+      const docsContents = document.querySelector(".docs-contents");
+      const docsLinks = Array.from(document.querySelectorAll(".docs-contents a"));
+      const docsTargets = docsLinks
+        .map((link) => document.querySelector(link.getAttribute("href") || ""))
+        .filter(Boolean);
+      const narrowDocsQuery = window.matchMedia("(max-width: 980px)");
+      const MAX_COLUMNS = 1200;
+      const MAX_ROWS = 820;
+      const ALTO_DESCRIPTION = "Alto turns broken images into accessible ASCII fallbacks.";
+      let livePreview = document.querySelector("#live-preview");
+      let activeObjectUrl = "";
+      let renderId = 0;
+      let latestAscii = "";
+      let outputMode = "html";
+      let currentOutput = "";
+
+      function clamp(value, min, max) {
+        return Math.min(max, Math.max(min, value));
+      }
+
+      function imageSize() {
+        return {
+          height: sourcePreview.naturalHeight || 480,
+          width: sourcePreview.naturalWidth || 720
+        };
+      }
+
+      function stageSize() {
+        const rect = stage.getBoundingClientRect();
+
+        if (rect.width > 0 && rect.height > 0) {
+          return {
+            height: rect.height,
+            width: rect.width
+          };
+        }
+
+        return imageSize();
+      }
+
+      function selectedScale() {
+        return Number.parseFloat(detailSelect.value) || 1;
+      }
+
+      function formatScale(scale) {
+        return `${scale.toFixed(2).replace(/\.?0+$/, "")}x`;
+      }
+
+      function asciiDimensionsForScale(scale) {
+        const { height, width } = stageSize();
+
+        return {
+          columns: clamp(Math.round(width * scale), 24, MAX_COLUMNS),
+          rows: clamp(Math.round(height * scale), 12, MAX_ROWS)
+        };
+      }
+
+      function asciiDimensions() {
+        return asciiDimensionsForScale(selectedScale());
+      }
+
+      function updateResolutionOptions() {
+        for (const option of detailSelect.options) {
+          const scale = Number.parseFloat(option.value);
+          const { columns, rows } = asciiDimensionsForScale(scale);
+          option.textContent = `${formatScale(scale)} - ${columns}x${rows}`;
+        }
+      }
+
+      function setDemoAspect() {
+        const { height, width } = imageSize();
+        stage.style.setProperty("--demo-aspect", `${width} / ${height}`);
+      }
+
+      function setReveal(value) {
+        const percent = clamp(Number.parseFloat(value) || 0, 0, 100);
+        const reveal = `${percent}%`;
+
+        stage.style.setProperty("--reveal", reveal);
+        asciiReveal.style.setProperty("--reveal", reveal);
+      }
+
+      function fitLivePreview() {
+        fitAltoFallback(livePreview);
+      }
+
+      function escapeHtml(value) {
+        return String(value).replace(/[&<>"']/g, (character) => {
+          if (character === "&") {
+            return "&amp;";
+          }
+
+          if (character === "<") {
+            return "&lt;";
+          }
+
+          if (character === ">") {
+            return "&gt;";
+          }
+
+          if (character === "\"") {
+            return "&quot;";
+          }
+
+          return "&#39;";
+        });
+      }
+
+      function syntaxSpan(className, value) {
+        return `<span class="${className}">${escapeHtml(value)}</span>`;
+      }
+
+      function highlightTag(token) {
+        return syntaxSpan("syntax-tag", token);
+      }
+
+      function highlightCode(value) {
+        const source = String(value);
+        const patterns = /<!--[\s\S]*?-->|\/\/[^\n]*|\/\*[\s\S]*?\*\/|<\/?[A-Za-z][\w:.-]*(?:\s+[^<>]*?)?\/?>|`(?:\\[\s\S]|[^`\\])*`|"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|@[A-Za-z-]+|\b(?:aria|async|await|class|className|const|default|export|extends|false|for|from|function|if|import|in|interface|let|new|null|of|return|true|type|undefined|var)\b|\b\d+(?:\.\d+)?\b|[{}()[\].,;:=/>+-]/g;
+        let highlighted = "";
+        let lastIndex = 0;
+
+        for (const match of source.matchAll(patterns)) {
+          const token = match[0];
+          const index = match.index || 0;
+          highlighted += escapeHtml(source.slice(lastIndex, index));
+
+          if (token.startsWith("<!--") || token.startsWith("//") || token.startsWith("/*")) {
+            highlighted += syntaxSpan("syntax-comment", token);
+          } else if (token.startsWith("<")) {
+            highlighted += highlightTag(token);
+          } else if (token.startsWith("\"") || token.startsWith("'") || token.startsWith("`")) {
+            highlighted += syntaxSpan("syntax-string", token);
+          } else if (/^@|\b(?:aria|async|await|class|className|const|default|export|extends|false|for|from|function|if|import|in|interface|let|new|null|of|return|true|type|undefined|var)\b/.test(token)) {
+            highlighted += syntaxSpan("syntax-keyword", token);
+          } else if (/^\d/.test(token)) {
+            highlighted += syntaxSpan("syntax-number", token);
+          } else {
+            highlighted += syntaxSpan("syntax-punctuation", token);
+          }
+
+          lastIndex = index + token.length;
+        }
+
+        return highlighted + escapeHtml(source.slice(lastIndex));
+      }
+
+      function highlightStaticCodeBlocks() {
+        document.querySelectorAll(".docs-panel pre code").forEach((code) => {
+          const raw = code.textContent || "";
+          code.dataset.rawCode = raw;
+          code.innerHTML = highlightCode(raw);
+        });
+      }
+
+      function inlineStyleFor(fallback) {
+        const properties = [
+          "--alto-bg",
+          "--alto-fg",
+          "--alto-accent",
+          "--alto-muted",
+          "--alto-shadow",
+          "--alto-columns",
+          "--alto-rows",
+          "--alto-x-scale",
+          "--alto-fit-x",
+          "--alto-fit-y"
+        ];
+        const entries = properties
+          .map((name) => [name, fallback.style.getPropertyValue(name).trim()])
+          .filter(([, value]) => value);
+
+        entries.push(["--alto-padding", "0"]);
+        entries.push(["aspect-ratio", stage.style.getPropertyValue("--demo-aspect").trim() || "3 / 2"]);
+        entries.push(["inline-size", "100%"]);
+
+        return entries.map(([name, value]) => `    ${name}: ${value};`).join("\n");
+      }
+
+      function htmlAttributesFor(fallback) {
+        if (fallback.hasAttribute("aria-hidden")) {
+          return '  aria-hidden="true"';
+        }
+
+        return [
+          '  role="img"',
+          `  aria-label="${escapeHtml(fallback.getAttribute("aria-label") || "image unavailable")}"`
+        ].join("\n");
+      }
+
+      function buildHtmlOutput(fallback, ascii) {
+        return `<span
+  class="${escapeHtml(fallback.className)}"
+${htmlAttributesFor(fallback)}
+  style="
+${escapeHtml(inlineStyleFor(fallback))}
+  "
+>
+  <pre class="alto-fallback__art">${escapeHtml(ascii)}</pre>
+</span>`;
+      }
+
+      function escapeTemplateLiteral(value) {
+        return String(value)
+          .replace(/\\/g, "\\\\")
+          .replace(/`/g, "\\`")
+          .replace(/\$\{/g, "\\${");
+      }
+
+      function outputAlt() {
+        return altInput.value || sourcePreview.alt || "ASCII image";
+      }
+
+      function outputSource() {
+        const src = sourcePreview.getAttribute("src") || "./examples/assets/apollo-aldrin.jpg";
+
+        return src.startsWith("blob:") ? "/images/uploaded-image.jpg" : src;
+      }
+
+      function buildTailwindOutput(ascii) {
+        return `const ascii = String.raw\`${escapeTemplateLiteral(ascii)}\`;
+
+export function AltoAsciiFallback() {
+  return (
+    <span
+      role="img"
+      aria-label="${escapeHtml(outputAlt())}"
+      className="block w-full overflow-hidden bg-transparent text-slate-950"
+    >
+      <pre className="font-mono text-[8px] leading-none tracking-normal whitespace-pre">
+        {ascii}
+      </pre>
+    </span>
+  );
+}`;
+      }
+
+      function buildNextOutput(ascii) {
+        const { height, width } = imageSize();
+
+        return `import Image from "next/image";
+
+const ascii = String.raw\`${escapeTemplateLiteral(ascii)}\`;
+
+export default function AltoImage() {
+  return (
+    <figure className="relative overflow-hidden">
+      <Image
+        src="${escapeHtml(outputSource())}"
+        alt="${escapeHtml(outputAlt())}"
+        width={${width}}
+        height={${height}}
+        className="h-auto w-full"
+      />
+      <pre
+        aria-hidden="true"
+        className="absolute inset-0 overflow-hidden font-mono text-[8px] leading-none tracking-normal text-white"
+      >
+        {ascii}
+      </pre>
+    </figure>
+  );
+}`;
+      }
+
+      function buildOutput(fallback, ascii) {
+        if (outputMode === "tailwind") {
+          return buildTailwindOutput(ascii);
+        }
+
+        if (outputMode === "next") {
+          return buildNextOutput(ascii);
+        }
+
+        return buildHtmlOutput(fallback, ascii);
+      }
+
+      function setOutputMode(mode) {
+        outputMode = mode;
+        outputModeButtons.forEach((button) => {
+          button.setAttribute("aria-pressed", String(button.dataset.outputMode === mode));
+        });
+        updateHtmlOutput();
+      }
+
+      function setOutputVisibility(isVisible) {
+        outputPanel.hidden = !isVisible;
+        showOutput.hidden = isVisible;
+        hideOutput.hidden = !isVisible;
+        showOutput.setAttribute("aria-expanded", String(isVisible));
+
+        if (isVisible) {
+          updateHtmlOutput();
+        }
+      }
+
+      function setUsageMode(mode) {
+        usageModeButtons.forEach((button) => {
+          button.setAttribute("aria-pressed", String(button.dataset.usageMode === mode));
+        });
+        usagePanels.forEach((panel) => {
+          panel.hidden = panel.dataset.usagePanel !== mode;
+        });
+      }
+
+      function setupDocsCopyButtons() {
+        document.querySelectorAll(".docs-panel pre").forEach((block) => {
+          const code = block.querySelector("code");
+          const button = document.createElement("button");
+          button.className = "docs-copy-button";
+          button.type = "button";
+          button.setAttribute("aria-label", "Copy code");
+          button.innerHTML = `
+            <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="8" y="8" width="12" height="12" rx="2"></rect>
+              <path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"></path>
+            </svg>
+            <span class="sr-only">Copy code</span>
+          `;
+          button.addEventListener("click", async () => {
+            try {
+              await writeClipboard(code?.dataset.rawCode || code?.textContent || "");
+              button.setAttribute("aria-label", "Copied code");
+              button.classList.add("copied");
+              window.setTimeout(() => {
+                button.setAttribute("aria-label", "Copy code");
+                button.classList.remove("copied");
+              }, 1200);
+            } catch {
+              button.setAttribute("aria-label", "Copy failed");
+            }
+          });
+          block.append(button);
+        });
+      }
+
+      function setCurrentDocsSection(id) {
+        docsLinks.forEach((link) => {
+          const isCurrent = link.getAttribute("href") === `#${id}`;
+
+          if (isCurrent) {
+            link.setAttribute("aria-current", "location");
+          } else {
+            link.removeAttribute("aria-current");
+          }
+        });
+      }
+
+      function updateDocsContentsBar() {
+        if (!docsContents || !docsHeader) {
+          return;
+        }
+
+        const shouldShow = narrowDocsQuery.matches && docsHeader.getBoundingClientRect().bottom <= 0;
+        docsContents.classList.toggle("docs-contents--visible", shouldShow);
+      }
+
+      function docsAnchorOffset() {
+        const contentsRect = docsContents?.getBoundingClientRect();
+
+        if (docsContents?.classList.contains("docs-contents--visible") && contentsRect) {
+          return contentsRect.bottom + 16;
+        }
+
+        return 32;
+      }
+
+      function updateCurrentDocsSection() {
+        const anchorOffset = docsAnchorOffset();
+        let currentId = docsTargets[0]?.id || "";
+        let closestDistance = Number.POSITIVE_INFINITY;
+
+        for (const target of docsTargets) {
+          const rect = target.getBoundingClientRect();
+          const distance = Math.abs(rect.top - anchorOffset);
+
+          if (distance < closestDistance) {
+            currentId = target.id;
+            closestDistance = distance;
+          }
+        }
+
+        setCurrentDocsSection(currentId);
+      }
+
+      function setCurrentDocsSectionFromHash() {
+        const id = decodeURIComponent(window.location.hash.slice(1));
+
+        if (docsTargets.some((target) => target.id === id)) {
+          setCurrentDocsSection(id);
+        }
+      }
+
+      function syncCurrentDocsSectionFromHash() {
+        requestAnimationFrame(() => {
+          updateCurrentDocsSection();
+          setCurrentDocsSectionFromHash();
+        });
+      }
+
+      function updateHtmlOutput() {
+        if (!latestAscii || !livePreview.classList.contains("alto-fallback")) {
+          currentOutput = "";
+          htmlOutputCode.textContent = "";
+          return;
+        }
+
+        requestAnimationFrame(() => {
+          currentOutput = buildOutput(livePreview, latestAscii);
+          htmlOutputCode.innerHTML = highlightCode(currentOutput);
+        });
+      }
+
+      function waitForImage(image) {
+        if (image.complete && image.naturalWidth > 0) {
+          return Promise.resolve();
+        }
+
+        return new Promise((resolve, reject) => {
+          image.addEventListener("load", resolve, { once: true });
+          image.addEventListener("error", () => reject(new Error("Unable to load image.")), { once: true });
+        });
+      }
+
+      async function renderPreview() {
+        const id = ++renderId;
+        updateResolutionOptions();
+        const scale = selectedScale();
+        const options = asciiDimensionsForScale(scale);
+        sourcePreview.alt = altInput.value;
+        setDemoAspect();
+        conversionStatus.textContent = ALTO_DESCRIPTION;
+
+        try {
+          await waitForImage(sourcePreview);
+          const ascii = await imageToAscii(sourcePreview, {
+            ...options,
+            maxColumns: MAX_COLUMNS,
+            maxRows: MAX_ROWS
+          });
+
+          if (id !== renderId) {
+            return;
+          }
+
+          const fallback = createAltoFallback(altInput.value, {
+            ...options,
+            aspectRatio: sourcePreview.naturalWidth / Math.max(1, sourcePreview.naturalHeight),
+            ascii
+          });
+
+          fallback.id = "live-preview";
+          livePreview.replaceWith(fallback);
+          livePreview = fallback;
+          latestAscii = ascii;
+          fitLivePreview();
+          updateHtmlOutput();
+          conversionStatus.textContent = ALTO_DESCRIPTION;
+        } catch (error) {
+          if (id !== renderId) {
+            return;
+          }
+
+          latestAscii = "";
+          updateHtmlOutput();
+          conversionStatus.textContent = error.message;
+        }
+      }
+
+      async function writeClipboard(value) {
+        if (navigator.clipboard?.writeText) {
+          await navigator.clipboard.writeText(value);
+          return;
+        }
+
+        const textarea = document.createElement("textarea");
+        textarea.value = value;
+        textarea.setAttribute("readonly", "");
+        textarea.style.position = "fixed";
+        textarea.style.insetBlockStart = "-100vh";
+        document.body.append(textarea);
+        textarea.select();
+        document.execCommand("copy");
+        textarea.remove();
+      }
+
+      generatorForm.addEventListener("submit", (event) => {
+        event.preventDefault();
+        renderPreview();
+      });
+
+      imageUpload.addEventListener("change", () => {
+        const file = imageUpload.files?.[0];
+
+        if (!file) {
+          return;
+        }
+
+        if (activeObjectUrl) {
+          URL.revokeObjectURL(activeObjectUrl);
+        }
+
+        activeObjectUrl = URL.createObjectURL(file);
+        sourcePreview.src = activeObjectUrl;
+        sourcePreview.alt = altInput.value || file.name;
+        fileName.textContent = file.name;
+      });
+
+      sourcePreview.addEventListener("load", () => {
+        setDemoAspect();
+        renderPreview();
+      });
+
+      sourcePreview.addEventListener("error", () => {
+        conversionStatus.textContent = "Unable to load image.";
+      });
+
+      detailSelect.addEventListener("change", () => {
+        updateResolutionOptions();
+        renderPreview();
+      });
+      outputModeButtons.forEach((button) => {
+        button.addEventListener("click", () => {
+          setOutputMode(button.dataset.outputMode || "html");
+        });
+      });
+      showOutput.addEventListener("click", () => setOutputVisibility(true));
+      hideOutput.addEventListener("click", () => setOutputVisibility(false));
+      usageModeButtons.forEach((button) => {
+        button.addEventListener("click", () => {
+          setUsageMode(button.dataset.usageMode || "react");
+        });
+      });
+      compareSlider.addEventListener("input", () => setReveal(compareSlider.value));
+      copyHtml.addEventListener("click", async () => {
+        try {
+          await writeClipboard(currentOutput);
+          copyHtml.setAttribute("aria-label", "Copied output");
+          copyHtml.classList.add("copied");
+          window.setTimeout(() => {
+            copyHtml.setAttribute("aria-label", "Copy output");
+            copyHtml.classList.remove("copied");
+          }, 1400);
+        } catch {
+          copyHtml.setAttribute("aria-label", "Copy failed");
+        }
+      });
+
+      window.addEventListener("resize", () => {
+        updateResolutionOptions();
+        fitLivePreview();
+        updateHtmlOutput();
+        updateDocsContentsBar();
+        updateCurrentDocsSection();
+      });
+      window.addEventListener("scroll", () => {
+        updateDocsContentsBar();
+        updateCurrentDocsSection();
+      }, { passive: true });
+      window.addEventListener("hashchange", syncCurrentDocsSectionFromHash);
+      window.addEventListener("load", () => {
+        updateDocsContentsBar();
+        syncCurrentDocsSectionFromHash();
+      });
+
+      setReveal(compareSlider.value);
+      setDemoAspect();
+      updateResolutionOptions();
+      highlightStaticCodeBlocks();
+      setupDocsCopyButtons();
+      updateDocsContentsBar();
+      syncCurrentDocsSectionFromHash();
+      renderPreview();
+    </script>
   </body>
 </html>
