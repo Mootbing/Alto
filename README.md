@@ -184,6 +184,28 @@ fitAltoFallback(fallback);
 
 Canvas security rules apply. Cross-origin images need CORS headers, or the browser will block pixel reads.
 
+`imageToAscii()` returns plain black-and-white ASCII text by default. When you need per-cell colors, request frame output:
+
+```js
+const frame = await imageToAscii(image, {
+  colorMode: "color",
+  output: "frame",
+  resolution: "0.5x"
+});
+
+frame.ascii; // plain ASCII text
+frame.cells; // one cell per character, including sampled color data
+```
+
+Use `colorMode: "black-and-white"` with `output: "frame"` when you still want cell metadata but prefer grayscale colors:
+
+```js
+const frame = await imageToAscii(image, {
+  colorMode: "black-and-white",
+  output: "frame"
+});
+```
+
 ## React
 
 React is optional and listed as a peer dependency.

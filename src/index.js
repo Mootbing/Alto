@@ -532,6 +532,20 @@ async function resolveDrawable(source, options) {
   return source;
 }
 
+function normalizeAsciiColorMode(colorMode) {
+  return colorMode === "color" ? "color" : "black-and-white";
+}
+
+function colorForCell(red, green, blue, alpha, luminance, colorMode) {
+  if (colorMode === "color") {
+    return `rgb(${red}, ${green}, ${blue})`;
+  }
+
+  const value = Math.round(clamp(luminance * alpha, 0, 1) * 255);
+
+  return `rgb(${value}, ${value}, ${value})`;
+}
+
 export async function imageToAscii(source, options = {}) {
   const doc = options.document || globalThis.document;
 
@@ -570,7 +584,10 @@ export async function imageToAscii(source, options = {}) {
   context.drawImage(drawable, 0, 0, columns, rows);
 
   const pixels = context.getImageData(0, 0, columns, rows).data;
+  const colorMode = normalizeAsciiColorMode(options.colorMode);
+  const includeFrame = options.output === "frame";
   const lines = [];
+  const cells = [];
 
   for (let y = 0; y < rows; y += 1) {
     let line = "";
@@ -584,13 +601,40 @@ export async function imageToAscii(source, options = {}) {
       const luminance = (0.2126 * red + 0.7152 * green + 0.0722 * blue) / 255;
       const value = clamp(luminance * alpha, 0, 1);
       const charIndex = Math.round(value * (charset.length - 1));
-      line += charset[charIndex];
+      const character = charset[charIndex];
+      line += character;
+
+      if (includeFrame) {
+        cells.push({
+          alpha,
+          blue,
+          character,
+          color: colorForCell(red, green, blue, alpha, luminance, colorMode),
+          green,
+          luminance,
+          red,
+          x,
+          y
+        });
+      }
     }
 
     lines.push(line);
   }
 
-  return lines.join("\n");
+  const ascii = lines.join("\n");
+
+  if (includeFrame) {
+    return {
+      ascii,
+      cells,
+      colorMode,
+      columns,
+      rows
+    };
+  }
+
+  return ascii;
 }
 
 export const Alto = {

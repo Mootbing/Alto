@@ -2,6 +2,37 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { ALTO_RESOLUTION_PRESETS, createAsciiAlt, imageToAscii, paletteFromAlt } from "../src/index.js";
 
+function documentWithPixels(pixelForPoint) {
+  return {
+    createElement() {
+      return {
+        getContext() {
+          return {
+            drawImage() {},
+            getImageData(_x, _y, width, height) {
+              const data = new Uint8ClampedArray(width * height * 4);
+
+              for (let y = 0; y < height; y += 1) {
+                for (let x = 0; x < width; x += 1) {
+                  const offset = (y * width + x) * 4;
+                  const [red, green, blue, alpha = 255] = pixelForPoint(x, y);
+
+                  data[offset] = red;
+                  data[offset + 1] = green;
+                  data[offset + 2] = blue;
+                  data[offset + 3] = alpha;
+                }
+              }
+
+              return { data };
+            }
+          };
+        }
+      };
+    }
+  };
+}
+
 test("createAsciiAlt returns the requested grid size", () => {
   const ascii = createAsciiAlt("A red bicycle leaning against a brick wall", {
     columns: 24,
@@ -86,6 +117,53 @@ test("imageToAscii supports source-relative scales up to 4x", async () => {
 
   assert.equal(lines.length, 12);
   assert.ok(lines.every((line) => line.length === 20));
+});
+
+test("imageToAscii can return sampled color frame data", async () => {
+  const frame = await imageToAscii(
+    {
+      naturalHeight: 4,
+      naturalWidth: 8
+    },
+    {
+      colorMode: "color",
+      columns: 8,
+      document: documentWithPixels((x) => (x % 2 === 0 ? [255, 0, 0] : [0, 255, 0])),
+      output: "frame",
+      rows: 4
+    }
+  );
+
+  assert.equal(frame.columns, 8);
+  assert.equal(frame.rows, 4);
+  assert.equal(frame.cells.length, 32);
+  assert.equal(frame.colorMode, "color");
+  assert.equal(frame.ascii.split("\n").length, 4);
+  assert.equal(frame.cells[0].color, "rgb(255, 0, 0)");
+  assert.equal(frame.cells[1].color, "rgb(0, 255, 0)");
+});
+
+test("imageToAscii frame data supports black-and-white colors", async () => {
+  const frame = await imageToAscii(
+    {
+      naturalHeight: 4,
+      naturalWidth: 8
+    },
+    {
+      colorMode: "black-and-white",
+      columns: 8,
+      document: documentWithPixels(() => [255, 0, 0]),
+      output: "frame",
+      rows: 4
+    }
+  );
+  const channelValues = frame.cells[0].color
+    .match(/\d+/g)
+    .map((value) => Number.parseInt(value, 10));
+
+  assert.equal(frame.colorMode, "black-and-white");
+  assert.equal(channelValues[0], channelValues[1]);
+  assert.equal(channelValues[1], channelValues[2]);
 });
 
 test("paletteFromAlt returns CSS color strings", () => {

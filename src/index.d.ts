@@ -16,6 +16,29 @@ export type AltoResolution =
   | `${number}%`
   | `${number}x`;
 
+export type AltoAsciiColorMode = "black-and-white" | "color";
+export type AltoAsciiOutput = "text" | "frame";
+
+export type AltoAsciiCell = {
+  alpha: number;
+  blue: number;
+  character: string;
+  color: string;
+  green: number;
+  luminance: number;
+  red: number;
+  x: number;
+  y: number;
+};
+
+export type AltoAsciiFrame = {
+  ascii: string;
+  cells: AltoAsciiCell[];
+  colorMode: AltoAsciiColorMode;
+  columns: number;
+  rows: number;
+};
+
 export declare const ALTO_RESOLUTION_PRESETS: {
   tiny: 0.55;
   low: 0.75;
@@ -60,10 +83,12 @@ export type InstallAltoOptions = ReplaceBrokenImageOptions & {
 };
 
 export type ImageToAsciiOptions = CreateAsciiAltOptions & {
+  colorMode?: AltoAsciiColorMode;
   crossOrigin?: "" | "anonymous" | "use-credentials";
   document?: Document;
   maxColumns?: number;
   maxRows?: number;
+  output?: AltoAsciiOutput;
 };
 
 export function createAsciiAlt(alt: string, options?: CreateAsciiAltOptions): string;
@@ -81,8 +106,13 @@ export function installAlto(options?: InstallAltoOptions): () => void;
 
 export function imageToAscii(
   source: string | HTMLImageElement | HTMLCanvasElement | HTMLVideoElement,
-  options?: ImageToAsciiOptions
+  options?: ImageToAsciiOptions & { output?: "text" }
 ): Promise<string>;
+
+export function imageToAscii(
+  source: string | HTMLImageElement | HTMLCanvasElement | HTMLVideoElement,
+  options: ImageToAsciiOptions & { output: "frame" }
+): Promise<AltoAsciiFrame>;
 
 export function paletteFromAlt(alt: string): AltoPalette;
 
