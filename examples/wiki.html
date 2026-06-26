@@ -65,8 +65,8 @@
         inset-inline: 50%;
         z-index: 20;
         display: grid;
-        width: min(56rem, calc(100% - 1rem));
-        grid-template-columns: auto minmax(0, 1fr) auto auto auto;
+        width: min(64rem, calc(100% - 1rem));
+        grid-template-columns: auto minmax(0, 1fr) auto auto auto auto;
         align-items: center;
         gap: 0.65rem;
         min-height: 4.15rem;
@@ -118,6 +118,7 @@
 
       .lod-toggle,
       .resolution-select,
+      .color-toggle,
       .alto-toggle {
         min-height: 2.7rem;
         border-radius: 999px;
@@ -158,6 +159,7 @@
         opacity: 0.62;
       }
 
+      .color-toggle,
       .alto-toggle {
         display: inline-flex;
         align-items: center;
@@ -169,6 +171,14 @@
         font-weight: 650;
       }
 
+      .color-toggle:disabled,
+      .alto-toggle:disabled {
+        color: var(--muted);
+        cursor: not-allowed;
+        opacity: 0.62;
+      }
+
+      .color-toggle:focus-visible,
       .alto-toggle:focus-visible {
         outline: 2px solid var(--accent);
         outline-offset: 2px;
@@ -201,10 +211,12 @@
         transition: transform 160ms ease;
       }
 
+      .color-toggle[aria-checked="true"] .switch-track,
       .alto-toggle[aria-checked="true"] .switch-track {
         background: var(--accent);
       }
 
+      .color-toggle[aria-checked="true"] .switch-thumb,
       .alto-toggle[aria-checked="true"] .switch-thumb {
         transform: translateX(1.2rem);
       }
@@ -446,6 +458,7 @@
 
         .lod-toggle,
         .resolution-select,
+        .color-toggle,
         .alto-toggle {
           grid-column: 1 / -1;
           width: 100%;
@@ -477,8 +490,14 @@
       <span class="brand-chip" aria-hidden="true">A</span>
       <span class="toggle-copy">
         <strong>Alto image mode</strong>
-        <span id="mode-copy">Local nature images are converted into 2x Alto ASCII.</span>
+        <span id="mode-copy">Local nature images are converted into colored 2x Alto ASCII.</span>
       </span>
+      <button class="color-toggle" id="color-toggle" type="button" role="switch" aria-checked="true" aria-label="Colored ASCII">
+        <span class="switch-label" id="color-toggle-label">Color</span>
+        <span class="switch-track" aria-hidden="true">
+          <span class="switch-thumb"></span>
+        </span>
+      </button>
       <label class="lod-toggle" for="auto-lod-toggle">
         <input id="auto-lod-toggle" type="checkbox" />
         Auto LOD
@@ -521,7 +540,7 @@
             </p>
 
             <div class="status-note" id="status-note">
-              Alto is active at 2x resolution. Local nature images are converted into ASCII before the fallbacks are applied.
+              Alto is active in colored mode at 2x resolution. Local nature images are converted into ASCII before the fallbacks are applied.
             </div>
 
             <nav class="toc" aria-label="Contents">
@@ -568,7 +587,7 @@
               <h2>Gallery</h2>
               <p>
                 The images below are stored with the demo. Toggle Alto off to see the local JPEGs directly, or leave it on
-                to see the same files become dense Alto panels sized to their article slots and selected resolution.
+                to see the same files become dense colored Alto panels sized to their article slots and selected resolution.
               </p>
               <div class="image-row" id="gallery-row"></div>
             </section>
@@ -614,6 +633,8 @@
       const MAX_COLUMNS = 520;
       const MAX_ROWS = 340;
       const toggle = document.querySelector("#alto-toggle");
+      const colorToggle = document.querySelector("#color-toggle");
+      const colorToggleLabel = document.querySelector("#color-toggle-label");
       const autoLodToggle = document.querySelector("#auto-lod-toggle");
       const resolutionSelect = document.querySelector("#resolution-select");
       const modeCopy = document.querySelector("#mode-copy");
@@ -670,6 +691,7 @@
         }
       ];
       let altoEnabled = true;
+      let colorMode = "color";
       let renderId = 0;
       let resizeFrame = 0;
       let lodRenderTimer = 0;
@@ -686,6 +708,14 @@
 
       function selectedResolutionLabel() {
         return formatResolution(selectedResolution());
+      }
+
+      function selectedColorLabel() {
+        return colorMode === "color" ? "colored" : "black-and-white";
+      }
+
+      function selectedColorTitle() {
+        return colorMode === "color" ? "Colored" : "Black-and-white";
       }
 
       function formatResolution(resolution) {
@@ -743,6 +773,30 @@
         });
       }
 
+      function renderFrameCells(fallback, frame) {
+        const art = fallback.querySelector(".alto-fallback__art");
+
+        if (!art) {
+          return;
+        }
+
+        const fragment = document.createDocumentFragment();
+
+        frame.cells.forEach((cell, index) => {
+          if (index > 0 && cell.x === 0) {
+            fragment.append("\n");
+          }
+
+          const span = document.createElement("span");
+          span.className = "alto-fallback__cell";
+          span.style.setProperty("--alto-cell-color", cell.color);
+          span.textContent = cell.character;
+          fragment.append(span);
+        });
+
+        art.replaceChildren(fragment);
+      }
+
       function dimensionsForBox(width, height, resolution) {
         return {
           columns: clamp(Math.round((width / 8) * resolution), 36, MAX_COLUMNS),
@@ -770,18 +824,22 @@
         const height = rect.height || image.parentElement?.getBoundingClientRect().height || 180;
         const resolution = autoLodEnabled() ? autoResolutionForRect(rect) : selectedResolution();
         const dimensions = dimensionsForBox(width, height, resolution);
-        const ascii = await imageToAscii(image, {
+        const frame = await imageToAscii(image, {
           ...dimensions,
+          colorMode,
           maxColumns: MAX_COLUMNS,
-          maxRows: MAX_ROWS
+          maxRows: MAX_ROWS,
+          output: "frame"
         });
         const fallback = createAltoFallback(image.alt, {
           ...dimensions,
-          ascii,
+          ascii: frame.ascii,
           aspectRatio: width / Math.max(1, height)
         });
 
+        renderFrameCells(fallback, frame);
         fallback.style.setProperty("--alto-radius", "0");
+        fallback.dataset.altoColorMode = frame.colorMode;
         fallback.dataset.altoLod = formatResolution(resolution);
         return { fallback, image, resolution };
       }
@@ -805,34 +863,43 @@
 
         const resolution = selectedResolutionLabel();
         const lodValues = [...new Set(converted.map(({ resolution: value }) => formatResolution(value)))].join(", ");
+        const colorLabel = selectedColorLabel();
+        const colorTitle = selectedColorTitle();
 
         modeCopy.textContent = autoLodEnabled()
-          ? `Auto LOD is active: visible images use up to 4x, distant slots use ${lodValues}.`
-          : `Local nature images are converted into ${resolution} Alto ASCII.`;
-        modeFact.textContent = "Alto fallbacks active";
+          ? `${colorTitle} Auto LOD is active: visible images use up to 4x, distant slots use ${lodValues}.`
+          : `Local nature images are converted into ${colorLabel} ${resolution} Alto ASCII.`;
+        modeFact.textContent = `${colorTitle} Alto fallbacks active`;
         statusNote.textContent = autoLodEnabled()
-          ? "Auto LOD is active. Each local image is converted based on its distance to the viewport."
-          : `Alto is active at ${resolution} resolution. Local nature images are converted into ASCII before the fallbacks are applied.`;
+          ? `${colorTitle} Auto LOD is active. Each local image is converted based on its distance to the viewport.`
+          : `Alto is active in ${colorLabel} mode at ${resolution} resolution. Local nature images are converted into ASCII before the fallbacks are applied.`;
       }
 
       function updateControls() {
         const resolution = selectedResolutionLabel();
         const autoLod = autoLodEnabled();
+        const colorLabel = selectedColorLabel();
+        const colorTitle = selectedColorTitle();
 
         toggle.setAttribute("aria-checked", String(altoEnabled));
         toggle.setAttribute("aria-label", altoEnabled ? "Alto on" : "Alto off");
+        colorToggle.disabled = !altoEnabled;
+        colorToggle.setAttribute("aria-disabled", String(!altoEnabled));
+        colorToggle.setAttribute("aria-checked", String(colorMode === "color"));
+        colorToggle.setAttribute("aria-label", "Colored ASCII");
+        colorToggleLabel.textContent = colorMode === "color" ? "Color" : "B/W";
         resolutionSelect.disabled = autoLod;
         resolutionSelect.setAttribute("aria-disabled", String(autoLod));
-        modeFact.textContent = altoEnabled ? "Alto fallbacks active" : "Local images active";
+        modeFact.textContent = altoEnabled ? `${colorTitle} Alto fallbacks active` : "Local images active";
         modeCopy.textContent = altoEnabled
           ? autoLod
-            ? "Auto LOD is choosing image resolution by viewport distance."
-            : `Converting local nature images into ${resolution} Alto ASCII.`
+            ? `${colorTitle} Auto LOD is choosing image resolution by viewport distance.`
+            : `Converting local nature images into ${colorLabel} ${resolution} Alto ASCII.`
           : "The article is showing the same local image files directly.";
         statusNote.textContent = altoEnabled
           ? autoLod
-            ? "Auto LOD is active. The manual resolution picker is disabled while image detail follows viewport distance."
-            : `Converting local images into ${resolution} Alto ASCII before applying the fallbacks.`
+            ? `${colorTitle} Auto LOD is active. The manual resolution picker is disabled while image detail follows viewport distance.`
+            : `Converting local images into ${colorLabel} ${resolution} Alto ASCII before applying the fallbacks.`
           : "Alto is off. The same local JPEG files are shown directly.";
       }
 
@@ -863,6 +930,11 @@
 
       toggle.addEventListener("click", () => {
         altoEnabled = !altoEnabled;
+        renderImages();
+      });
+
+      colorToggle.addEventListener("click", () => {
+        colorMode = colorMode === "color" ? "black-and-white" : "color";
         renderImages();
       });
 

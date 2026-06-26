@@ -57,15 +57,17 @@ Use `imageToAscii()` when an image loads successfully and the UI intentionally w
 import { createAltoFallback, fitAltoFallback, imageToAscii } from "alto-ascii";
 
 const image = document.querySelector("img");
-const ascii = await imageToAscii(image, {
+const frame = await imageToAscii(image, {
+  colorMode: "color",
   columns: 120,
   rows: 64,
   maxColumns: 520,
-  maxRows: 340
+  maxRows: 340,
+  output: "frame"
 });
 
 const fallback = createAltoFallback(image.alt, {
-  ascii,
+  ascii: frame.ascii,
   aspectRatio: image.naturalWidth / Math.max(1, image.naturalHeight)
 });
 
@@ -79,6 +81,13 @@ fitAltoFallback(fallback);
 - Use explicit `columns` and `rows` for container-aware demos or responsive slots.
 - Clamp high-resolution conversions with `maxColumns` and `maxRows`.
 - Recompute ASCII after layout changes when the fallback must adapt to the rendered element size.
+
+## Color guidance
+
+- `imageToAscii()` returns plain text with no per-cell color metadata by default.
+- Use `output: "frame"` plus `colorMode: "color"` to receive per-cell sampled RGB colors.
+- Use `output: "frame"` plus `colorMode: "black-and-white"` when metadata is useful but binary black/white colors are preferred.
+- Render `frame.ascii` for text-only output, or render `frame.cells` as character spans with `--alto-cell-color` for colored demos.
 
 ## Accessibility and browser constraints
 

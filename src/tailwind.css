@@ -19,7 +19,6 @@
     border: 1px solid var(--alto-muted);
     border-radius: var(--alto-radius);
     background:
-      linear-gradient(135deg, transparent 0 42%, color-mix(in srgb, var(--alto-accent), transparent 80%) 42% 58%, transparent 58% 100%),
       radial-gradient(circle at 22% 18%, color-mix(in srgb, var(--alto-accent), transparent 72%), transparent 26%),
       linear-gradient(160deg, var(--alto-bg), var(--alto-shadow));
     color: var(--alto-fg);
@@ -53,13 +52,16 @@
       0 0 0.35rem color-mix(in srgb, var(--alto-accent), transparent 40%),
       0 0.08rem 0 var(--alto-shadow);
   }
+
+  .alto-fallback__cell {
+    color: var(--alto-cell-color, currentColor);
+  }
 }
 
 @supports not (background: color-mix(in srgb, black, white)) {
   @layer components {
     .alto-fallback {
       background:
-        linear-gradient(135deg, transparent 0 42%, rgba(255, 255, 255, 0.08) 42% 58%, transparent 58% 100%),
         linear-gradient(160deg, var(--alto-bg), var(--alto-shadow));
     }
 

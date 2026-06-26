@@ -138,7 +138,7 @@
 
       .generator-bar {
         display: grid;
-        grid-template-columns: auto minmax(12rem, 1fr) auto auto;
+        grid-template-columns: auto minmax(12rem, 1fr) auto auto auto auto auto;
         align-items: center;
         gap: 0.65rem;
         min-height: 4.15rem;
@@ -151,7 +151,8 @@
 
       .file-picker,
       .generate-button,
-      .detail-select {
+      .detail-select,
+      .number-input {
         min-height: 2.7rem;
         border: 1px solid var(--line);
         border-radius: 8px;
@@ -205,6 +206,30 @@
 
       .detail-select {
         padding: 0 2.2rem 0 0.75rem;
+      }
+
+      .exact-grid {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+      }
+
+      .exact-grid[hidden] {
+        display: none;
+      }
+
+      .number-input {
+        width: 4.8rem;
+        padding: 0 0.55rem;
+      }
+
+      .resolution-readout {
+        min-width: 5.5rem;
+        color: var(--muted);
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+        font-size: 0.86rem;
+        text-align: center;
+        white-space: nowrap;
       }
 
       .generate-button {
@@ -476,6 +501,10 @@
             aria-label="Image description"
             placeholder="Image description"
           />
+          <select class="detail-select" id="size-mode-select" aria-label="ASCII sizing mode">
+            <option value="source" selected>Source scale</option>
+            <option value="exact">Exact grid</option>
+          </select>
           <select class="detail-select" id="detail-select" aria-label="ASCII scale and resolution">
             <option value="0.25">0.25x</option>
             <option value="0.5">0.5x</option>
@@ -493,6 +522,15 @@
             <option value="3.5">3.5x</option>
             <option value="3.75">3.75x</option>
             <option value="4">4x</option>
+          </select>
+          <span class="exact-grid" id="exact-grid" hidden>
+            <input class="number-input" id="columns-input" type="number" min="8" max="1200" step="1" value="120" aria-label="ASCII columns" />
+            <span aria-hidden="true">x</span>
+            <input class="number-input" id="rows-input" type="number" min="4" max="820" step="1" value="80" aria-label="ASCII rows" />
+          </span>
+          <select class="detail-select" id="color-mode-select" aria-label="ASCII color mode">
+            <option value="black-and-white" selected>B/W</option>
+            <option value="color">Color</option>
           </select>
           <span class="resolution-readout" id="resolution-output" aria-live="polite">0x0</span>
           <button class="generate-button" type="submit">Generate</button>
@@ -521,6 +559,11 @@
       const imageUpload = document.querySelector("#image-upload");
       const fileName = document.querySelector("#file-name");
       const detailSelect = document.querySelector("#detail-select");
+      const sizeModeSelect = document.querySelector("#size-mode-select");
+      const colorModeSelect = document.querySelector("#color-mode-select");
+      const columnsInput = document.querySelector("#columns-input");
+      const rowsInput = document.querySelector("#rows-input");
+      const exactGrid = document.querySelector("#exact-grid");
       const generatorForm = document.querySelector("#generator-form");
       const stage = document.querySelector("#comparison-stage");
       const compareSlider = document.querySelector("#compare-slider");
@@ -532,11 +575,11 @@
       const resolutionOutput = document.querySelector("#resolution-output");
       const MAX_COLUMNS = 1200;
       const MAX_ROWS = 820;
-      const ALTO_DESCRIPTION = "Alto turns broken images into accessible ASCII fallbacks.";
       let livePreview = document.querySelector("#live-preview");
       let activeObjectUrl = "";
       let renderId = 0;
       let latestAscii = "";
+      let latestFrame = null;
 
       function clamp(value, min, max) {
         return Math.min(max, Math.max(min, value));
@@ -549,29 +592,37 @@
         };
       }
 
-      function stageSize() {
-        const rect = stage.getBoundingClientRect();
-
-        if (rect.width > 0 && rect.height > 0) {
-          return {
-            height: rect.height,
-            width: rect.width
-          };
-        }
-
-        return imageSize();
-      }
-
       function selectedScale() {
         return Number.parseFloat(detailSelect.value) || 1;
+      }
+
+      function selectedSizingMode() {
+        return sizeModeSelect.value === "exact" ? "exact" : "source";
+      }
+
+      function selectedColorMode() {
+        return colorModeSelect.value === "color" ? "color" : "black-and-white";
       }
 
       function formatScale(scale) {
         return `${scale.toFixed(2).replace(/\.?0+$/, "")}x`;
       }
 
-      function asciiDimensionsForScale(scale) {
-        const { height, width } = stageSize();
+      function clampInputValue(input, min, max) {
+        const value = Number.parseInt(input.value, 10);
+
+        return Number.isFinite(value) ? clamp(value, min, max) : min;
+      }
+
+      function exactDimensions() {
+        return {
+          columns: clampInputValue(columnsInput, 8, MAX_COLUMNS),
+          rows: clampInputValue(rowsInput, 4, MAX_ROWS)
+        };
+      }
+
+      function asciiDimensionsForSourceScale(scale) {
+        const { height, width } = imageSize();
 
         return {
           columns: clamp(Math.round(width * scale), 24, MAX_COLUMNS),
@@ -580,18 +631,37 @@
       }
 
       function asciiDimensions() {
-        return asciiDimensionsForScale(selectedScale());
+        return selectedSizingMode() === "exact"
+          ? exactDimensions()
+          : asciiDimensionsForSourceScale(selectedScale());
+      }
+
+      function imageToAsciiOptions() {
+        if (selectedSizingMode() === "exact") {
+          return exactDimensions();
+        }
+
+        return {
+          resolution: formatScale(selectedScale())
+        };
       }
 
       function updateResolutionOptions() {
         for (const option of detailSelect.options) {
           const scale = Number.parseFloat(option.value);
-          const { columns, rows } = asciiDimensionsForScale(scale);
+          const { columns, rows } = asciiDimensionsForSourceScale(scale);
           option.textContent = `${formatScale(scale)} - ${columns}x${rows}`;
         }
 
+        const exactMode = selectedSizingMode() === "exact";
+        exactGrid.hidden = !exactMode;
+        detailSelect.disabled = exactMode;
+        detailSelect.setAttribute("aria-disabled", String(exactMode));
+        columnsInput.disabled = !exactMode;
+        rowsInput.disabled = !exactMode;
+
         const { columns, rows } = asciiDimensions();
-        resolutionOutput.textContent = `${columns}x${rows}`;
+        resolutionOutput.textContent = exactMode ? `${columns}x${rows} exact` : `${columns}x${rows}`;
       }
 
       function setDemoAspect() {
@@ -633,6 +703,40 @@
         });
       }
 
+      function renderFrameCells(fallback, frame) {
+        const art = fallback.querySelector(".alto-fallback__art");
+
+        if (!art) {
+          return;
+        }
+
+        const fragment = document.createDocumentFragment();
+
+        frame.cells.forEach((cell, index) => {
+          if (index > 0 && cell.x === 0) {
+            fragment.append("\n");
+          }
+
+          const span = document.createElement("span");
+          span.className = "alto-fallback__cell";
+          span.style.setProperty("--alto-cell-color", cell.color);
+          span.textContent = cell.character;
+          fragment.append(span);
+        });
+
+        art.replaceChildren(fragment);
+      }
+
+      function frameHtml(frame) {
+        return frame.cells.reduce((html, cell, index) => {
+          const newline = index > 0 && cell.x === 0 ? "\n" : "";
+          const character = escapeHtml(cell.character);
+          const color = escapeHtml(cell.color);
+
+          return `${html}${newline}<span class="alto-fallback__cell" style="--alto-cell-color: ${color};">${character}</span>`;
+        }, "");
+      }
+
       function inlineStyleFor(fallback) {
         const properties = [
           "--alto-bg",
@@ -668,7 +772,9 @@
         ].join("\n");
       }
 
-      function buildHtmlOutput(fallback, ascii) {
+      function buildHtmlOutput(fallback, ascii, frame) {
+        const art = frame ? frameHtml(frame) : escapeHtml(ascii);
+
         return `<span
   class="${escapeHtml(fallback.className)}"
 ${htmlAttributesFor(fallback)}
@@ -676,7 +782,7 @@ ${htmlAttributesFor(fallback)}
 ${escapeHtml(inlineStyleFor(fallback))}
   "
 >
-  <pre class="alto-fallback__art">${escapeHtml(ascii)}</pre>
+  <pre class="alto-fallback__art">${art}</pre>
 </span>`;
       }
 
@@ -687,7 +793,7 @@ ${escapeHtml(inlineStyleFor(fallback))}
         }
 
         requestAnimationFrame(() => {
-          htmlOutputCode.value = buildHtmlOutput(livePreview, latestAscii);
+          htmlOutputCode.value = buildHtmlOutput(livePreview, latestAscii, latestFrame);
         });
       }
 
@@ -706,42 +812,54 @@ ${escapeHtml(inlineStyleFor(fallback))}
         const id = ++renderId;
         updateResolutionOptions();
         const scale = selectedScale();
-        const options = asciiDimensionsForScale(scale);
+        const sizingOptions = imageToAsciiOptions();
+        const colorMode = selectedColorMode();
         sourcePreview.alt = altInput.value;
         setDemoAspect();
-        conversionStatus.textContent = ALTO_DESCRIPTION;
+        conversionStatus.textContent = `Converting ${colorMode === "color" ? "colored" : "black-and-white"} ASCII...`;
 
         try {
           await waitForImage(sourcePreview);
-          const ascii = await imageToAscii(sourcePreview, {
-            ...options,
+          const frame = await imageToAscii(sourcePreview, {
+            ...sizingOptions,
+            colorMode,
             maxColumns: MAX_COLUMNS,
-            maxRows: MAX_ROWS
+            maxRows: MAX_ROWS,
+            output: "frame"
           });
+          const ascii = frame.ascii;
+          const dimensions = { columns: frame.columns, rows: frame.rows };
 
           if (id !== renderId) {
             return;
           }
 
           const fallback = createAltoFallback(altInput.value, {
-            ...options,
+            ...dimensions,
             aspectRatio: sourcePreview.naturalWidth / Math.max(1, sourcePreview.naturalHeight),
             ascii
           });
 
+          renderFrameCells(fallback, frame);
+
           fallback.id = "live-preview";
+          fallback.dataset.altoColorMode = colorMode;
           livePreview.replaceWith(fallback);
           livePreview = fallback;
           latestAscii = ascii;
+          latestFrame = frame;
           fitLivePreview();
           updateHtmlOutput();
-          conversionStatus.textContent = ALTO_DESCRIPTION;
+          conversionStatus.textContent = selectedSizingMode() === "exact"
+            ? `Rendered ${colorMode === "color" ? "colored" : "black-and-white"} ASCII at exact ${dimensions.columns}x${dimensions.rows}.`
+            : `Rendered ${colorMode === "color" ? "colored" : "black-and-white"} ASCII at ${formatScale(scale)} source scale (${dimensions.columns}x${dimensions.rows}).`;
         } catch (error) {
           if (id !== renderId) {
             return;
           }
 
           latestAscii = "";
+          latestFrame = null;
           updateHtmlOutput();
           conversionStatus.textContent = error.message;
         }
@@ -790,6 +908,21 @@ ${escapeHtml(inlineStyleFor(fallback))}
       });
 
       detailSelect.addEventListener("change", () => {
+        updateResolutionOptions();
+        renderPreview();
+      });
+      sizeModeSelect.addEventListener("change", () => {
+        updateResolutionOptions();
+        renderPreview();
+      });
+      colorModeSelect.addEventListener("change", () => {
+        renderPreview();
+      });
+      columnsInput.addEventListener("input", () => {
+        updateResolutionOptions();
+        renderPreview();
+      });
+      rowsInput.addEventListener("input", () => {
         updateResolutionOptions();
         renderPreview();
       });

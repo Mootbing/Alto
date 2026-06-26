@@ -143,7 +143,7 @@ test("imageToAscii can return sampled color frame data", async () => {
   assert.equal(frame.cells[1].color, "rgb(0, 255, 0)");
 });
 
-test("imageToAscii frame data supports black-and-white colors", async () => {
+test("imageToAscii frame data supports binary black-and-white colors", async () => {
   const frame = await imageToAscii(
     {
       naturalHeight: 4,
@@ -152,18 +152,15 @@ test("imageToAscii frame data supports black-and-white colors", async () => {
     {
       colorMode: "black-and-white",
       columns: 8,
-      document: documentWithPixels(() => [255, 0, 0]),
+      document: documentWithPixels((x) => (x % 2 === 0 ? [0, 0, 0] : [255, 255, 255])),
       output: "frame",
       rows: 4
     }
   );
-  const channelValues = frame.cells[0].color
-    .match(/\d+/g)
-    .map((value) => Number.parseInt(value, 10));
 
   assert.equal(frame.colorMode, "black-and-white");
-  assert.equal(channelValues[0], channelValues[1]);
-  assert.equal(channelValues[1], channelValues[2]);
+  assert.equal(frame.cells[0].color, "rgb(0, 0, 0)");
+  assert.equal(frame.cells[1].color, "rgb(255, 255, 255)");
 });
 
 test("paletteFromAlt returns CSS color strings", () => {

@@ -54,6 +54,7 @@ The demo includes:
 - A real image uploader that converts selected image pixels to ASCII.
 - Source-relative scale toggles from `0.25x` up to `4x`.
 - Exact columns and rows number inputs that preserve the source image aspect ratio.
+- A color mode switch for binary black-and-white or per-cell sampled colors.
 
 The sample photo is a NASA Apollo 11 image of Buzz Aldrin sourced from Wikimedia Commons/NASA.
 
@@ -184,7 +185,7 @@ fitAltoFallback(fallback);
 
 Canvas security rules apply. Cross-origin images need CORS headers, or the browser will block pixel reads.
 
-`imageToAscii()` returns plain black-and-white ASCII text by default. When you need per-cell colors, request frame output:
+`imageToAscii()` returns plain ASCII text with no per-cell color metadata by default. When you need per-cell colors, request frame output:
 
 ```js
 const frame = await imageToAscii(image, {
@@ -197,7 +198,26 @@ frame.ascii; // plain ASCII text
 frame.cells; // one cell per character, including sampled color data
 ```
 
-Use `colorMode: "black-and-white"` with `output: "frame"` when you still want cell metadata but prefer grayscale colors:
+Render `frame.ascii` when you only need text, or use `frame.cells` to wrap each character in your own markup:
+
+```js
+const art = document.createElement("pre");
+art.className = "alto-fallback__art";
+
+for (const cell of frame.cells) {
+  if (cell.x === 0 && art.childNodes.length) {
+    art.append("\n");
+  }
+
+  const span = document.createElement("span");
+  span.className = "alto-fallback__cell";
+  span.style.setProperty("--alto-cell-color", cell.color);
+  span.textContent = cell.character;
+  art.append(span);
+}
+```
+
+Use `colorMode: "black-and-white"` with `output: "frame"` when you still want cell metadata but prefer binary black/white colors:
 
 ```js
 const frame = await imageToAscii(image, {
@@ -424,11 +444,13 @@ Options:
 - `columns`: exact output columns.
 - `rows`: exact output rows.
 - `resolution`: source-relative scale such as `4x`, `2x`, `1x`, `0.75x`, `0.5x`, or `0.25x`.
+- `colorMode`: `"black-and-white"` or `"color"` for frame cell colors. Default: `"black-and-white"`.
 - `charset`: characters ordered from light to dark.
 - `crossOrigin`: value applied to URL-created images.
 - `document`: custom DOM document.
 - `maxColumns`: safety cap for source-relative scaling. Default: `1200`.
 - `maxRows`: safety cap for source-relative scaling. Default: `900`.
+- `output`: `"text"` for a string or `"frame"` for `{ ascii, cells, colorMode, columns, rows }`. Default: `"text"`.
 
 ### `fitAltoFallback(fallback)`
 
@@ -481,6 +503,10 @@ The fallback uses CSS custom properties:
   --alto-shadow: hsl(220 28% 6%);
   --alto-radius: 0.5rem;
   --alto-padding: 0.75rem;
+}
+
+.alto-fallback__cell {
+  color: var(--alto-cell-color, currentColor);
 }
 ```
 

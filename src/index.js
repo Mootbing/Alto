@@ -541,7 +541,7 @@ function colorForCell(red, green, blue, alpha, luminance, colorMode) {
     return `rgb(${red}, ${green}, ${blue})`;
   }
 
-  const value = Math.round(clamp(luminance * alpha, 0, 1) * 255);
+  const value = clamp(luminance * alpha, 0, 1) >= 0.5 ? 255 : 0;
 
   return `rgb(${value}, ${value}, ${value})`;
 }
